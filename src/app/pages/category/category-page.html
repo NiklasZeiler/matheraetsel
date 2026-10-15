@@ -1,0 +1,30 @@
+<main class="category">
+  @if (category(); as category) {
+    <header class="bar">
+      <a class="back" routerLink="/" aria-label="Zur Startseite">←</a>
+      <h1>{{ category.title }}</h1>
+    </header>
+    <p class="summary">{{ category.summary }}</p>
+
+    <section aria-label="Stufen">
+      <ul class="levels">
+        @for (level of category.levels; track level.id) {
+          <li>
+            <button type="button" class="level" (click)="start(level.id)">
+              <span class="level-name">{{ level.label }}</span>
+              <span class="level-description">{{ level.description }}</span>
+              <span class="level-stats">
+                @if (game.stats()[category.type][level.id].solved > 0) {
+                  {{ game.stats()[category.type][level.id].solved }} gelöst · Bestzeit
+                  {{ formatDuration(game.stats()[category.type][level.id].bestSeconds ?? 0) }}
+                } @else {
+                  Noch nicht gelöst
+                }
+              </span>
+            </button>
+          </li>
+        }
+      </ul>
+    </section>
+  }
+</main>

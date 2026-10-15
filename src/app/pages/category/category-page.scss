@@ -1,0 +1,65 @@
+.category {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.bar {
+  display: grid;
+  grid-template-columns: 3rem 1fr;
+  align-items: center;
+  gap: var(--space-2);
+
+  h1 {
+    margin: 0;
+    font-size: 1.5rem;
+  }
+}
+
+.back {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--radius);
+  color: var(--color-text);
+  font-size: 1.5rem;
+  text-decoration: none;
+}
+
+.summary {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.levels {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.level {
+  display: grid;
+  gap: 0.25rem;
+  width: 100%;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.level-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.level-description,
+.level-stats {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}

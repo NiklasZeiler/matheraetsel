@@ -1,12 +1,10 @@
 import { Component, inject } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
+import { CATEGORIES, categoryOf } from '../../core/categories';
 import { formatDuration } from '../../core/format';
-import { LEVELS, LEVEL_IDS, LevelId } from '../../core/levels';
-import { createSeed } from '../../core/random';
-import { PUZZLE_TYPE_LABEL, PuzzleType } from '../../core/puzzle';
+import { LEVELS } from '../../core/levels';
+import { PuzzleType } from '../../core/puzzle';
 import { puzzleRoute } from '../../core/share-link';
-import { MOBILE_LEVELS } from '../../core/mobile-levels';
-import { WAAGE_LEVELS } from '../../core/waage-levels';
 import { GameService } from '../../services/game.service';
 import { PersistenceService } from '../../services/persistence.service';
 
@@ -17,38 +15,8 @@ import { PersistenceService } from '../../services/persistence.service';
   styleUrl: './home-page.scss',
 })
 export class HomePage {
-  private readonly router = inject(Router);
   protected readonly game = inject(GameService);
-
-  protected readonly sections: {
-    type: PuzzleType;
-    title: string;
-    levels: { id: LevelId; label: string; description: string }[];
-  }[] = [
-    {
-      type: 'gleichung',
-      title: PUZZLE_TYPE_LABEL.gleichung,
-      levels: LEVEL_IDS.map((id) => LEVELS[id]),
-    },
-    {
-      type: 'waage',
-      title: PUZZLE_TYPE_LABEL.waage,
-      levels: LEVEL_IDS.map((id) => ({
-        id,
-        label: LEVELS[id].label,
-        description: WAAGE_LEVELS[id].description,
-      })),
-    },
-    {
-      type: 'mobile',
-      title: PUZZLE_TYPE_LABEL.mobile,
-      levels: LEVEL_IDS.map((id) => ({
-        id,
-        label: LEVELS[id].label,
-        description: MOBILE_LEVELS[id].description,
-      })),
-    },
-  ];
+  protected readonly categories = CATEGORIES;
   protected readonly unfinished = (() => {
     const session = inject(PersistenceService).loadSession();
     return session && !session.solved ? session : null;
@@ -63,10 +31,14 @@ export class HomePage {
 
   protected unfinishedLabel(): string {
     const session = this.unfinished;
-    return session ? `${PUZZLE_TYPE_LABEL[session.type]} · ${LEVELS[session.level].label}` : '';
+    if (!session) {
+      return '';
+    }
+    const title = categoryOf(session.type)?.title ?? '';
+    return `${title} · ${LEVELS[session.level].label}`;
   }
 
-  protected start(type: PuzzleType, level: LevelId): void {
-    void this.router.navigate(puzzleRoute(type, level, createSeed()));
+  protected solvedCount(type: PuzzleType): number {
+    return Object.values(this.game.stats()[type]).reduce((sum, level) => sum + level.solved, 0);
   }
 }

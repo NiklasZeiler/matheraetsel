@@ -1,7 +1,7 @@
 <main class="home">
   <header>
     <h1>Matherätsel</h1>
-    <p>Jedes Bild steht für eine Zahl. Finde heraus, welche – und löse die Frage.</p>
+    <p>Knobeln mit Bildern, Zahlen und Gleichgewicht – für alle Altersstufen.</p>
   </header>
 
   @if (unfinished) {
@@ -10,27 +10,24 @@
     </a>
   }
 
-  @for (section of sections; track section.type) {
-    <section [attr.aria-labelledby]="'heading-' + section.type">
-      <h2 [id]="'heading-' + section.type">{{ section.title }}</h2>
-      <ul class="levels">
-        @for (level of section.levels; track level.id) {
-          <li>
-            <button type="button" class="level" (click)="start(section.type, level.id)">
-              <span class="level-name">{{ level.label }}</span>
-              <span class="level-description">{{ level.description }}</span>
-              <span class="level-stats">
-                @if (game.stats()[section.type][level.id].solved > 0) {
-                  {{ game.stats()[section.type][level.id].solved }} gelöst · Bestzeit
-                  {{ formatDuration(game.stats()[section.type][level.id].bestSeconds ?? 0) }}
-                } @else {
-                  Noch nicht gelöst
-                }
-              </span>
-            </button>
-          </li>
-        }
-      </ul>
-    </section>
-  }
+  <section aria-labelledby="categories-heading">
+    <h2 id="categories-heading">Rätselart wählen</h2>
+    <ul class="categories">
+      @for (category of categories; track category.type) {
+        <li>
+          <a class="category" [routerLink]="['/k', category.type]">
+            <span class="category-name">{{ category.title }}</span>
+            <span class="category-summary">{{ category.summary }}</span>
+            <span class="category-stats">
+              @if (solvedCount(category.type) > 0) {
+                {{ solvedCount(category.type) }} gelöst
+              } @else {
+                Noch nicht gespielt
+              }
+            </span>
+          </a>
+        </li>
+      }
+    </ul>
+  </section>
 </main>

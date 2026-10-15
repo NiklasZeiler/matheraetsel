@@ -1,6 +1,6 @@
 <main class="puzzle">
   <header class="bar">
-    <a class="back" routerLink="/" aria-label="Zur Startseite">←</a>
+    <a class="back" [routerLink]="['/k', type()]" aria-label="Zurück zur Auswahl">←</a>
     <h1>{{ levelLabel() }}</h1>
     <p class="timer" aria-label="Zeit">{{ formatDuration(game.elapsedSeconds()) }}</p>
   </header>
