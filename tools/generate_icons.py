@@ -8,7 +8,7 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
-ACCENT = sys.argv[1] if len(sys.argv) > 1 else '#e8743b'
+ACCENT = sys.argv[1] if len(sys.argv) > 1 else '#2563eb'
 FONT = '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf'
 SOURCE_SIZE = 1024
 PUBLIC = Path(__file__).resolve().parent.parent / 'public'
