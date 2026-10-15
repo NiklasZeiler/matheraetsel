@@ -16,6 +16,8 @@ export interface LevelConfig {
   /** Pictures per equation, counted with repeats. */
   occurrences: readonly [number, number];
   question: 'symbol' | 'expression';
+  /** Show repeated pictures side by side (🍌🍌) instead of with plus signs. */
+  groupRepeats: boolean;
 }
 
 export const LEVELS: Record<LevelId, LevelConfig> = {
@@ -30,6 +32,7 @@ export const LEVELS: Record<LevelId, LevelConfig> = {
     valueRange: [2, 9],
     occurrences: [2, 3],
     question: 'symbol',
+    groupRepeats: false,
   },
   mittel: {
     id: 'mittel',
@@ -42,6 +45,7 @@ export const LEVELS: Record<LevelId, LevelConfig> = {
     valueRange: [2, 12],
     occurrences: [2, 3],
     question: 'symbol',
+    groupRepeats: false,
   },
   schwer: {
     id: 'schwer',
@@ -54,6 +58,7 @@ export const LEVELS: Record<LevelId, LevelConfig> = {
     valueRange: [2, 15],
     occurrences: [3, 4],
     question: 'expression',
+    groupRepeats: true,
   },
   knobler: {
     id: 'knobler',
@@ -66,6 +71,7 @@ export const LEVELS: Record<LevelId, LevelConfig> = {
     valueRange: [2, 30],
     occurrences: [3, 4],
     question: 'expression',
+    groupRepeats: true,
   },
 };
 

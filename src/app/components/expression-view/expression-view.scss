@@ -9,8 +9,13 @@
   line-height: 1.3;
 }
 
-.symbol {
+.symbol,
+.group {
   font-size: 1.15em;
+}
+
+.group {
+  letter-spacing: -0.05em;
 }
 
 .operator,

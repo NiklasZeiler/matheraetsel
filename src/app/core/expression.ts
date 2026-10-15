@@ -114,6 +114,53 @@ export function toTokens(expression: Expression): Token[] {
   ];
 }
 
+export type GroupedToken = Token | { kind: 'group'; symbol: number; count: number };
+
+/**
+ * Display helper: turns "a + a + a" into one group (shown as "aaa"). Only runs that form a
+ * complete sum term are grouped, so "b + a • a" or "b - a + a" keep their plus signs.
+ */
+export function groupRepeatedSymbols(tokens: readonly Token[]): GroupedToken[] {
+  const grouped: GroupedToken[] = [];
+  let index = 0;
+  while (index < tokens.length) {
+    const token = tokens[index];
+    if (token.kind === 'symbol') {
+      let last = index;
+      while (isPlusThenSymbol(tokens, last, token.symbol)) {
+        last += 2;
+      }
+      const before = tokens[index - 1];
+      const after = tokens[last + 1];
+      const startsTerm =
+        !before || before.kind === 'open' || (before.kind === 'operator' && before.operator === '+');
+      const endsTerm =
+        !after ||
+        after.kind === 'close' ||
+        (after.kind === 'operator' && (after.operator === '+' || after.operator === '-'));
+      if (last > index && startsTerm && endsTerm) {
+        grouped.push({ kind: 'group', symbol: token.symbol, count: (last - index) / 2 + 1 });
+        index = last + 1;
+        continue;
+      }
+    }
+    grouped.push(token);
+    index++;
+  }
+  return grouped;
+}
+
+function isPlusThenSymbol(tokens: readonly Token[], position: number, symbol: number): boolean {
+  const operator = tokens[position + 1];
+  const next = tokens[position + 2];
+  return (
+    operator?.kind === 'operator' &&
+    operator.operator === '+' &&
+    next?.kind === 'symbol' &&
+    next.symbol === symbol
+  );
+}
+
 export function hasParentheses(expression: Expression): boolean {
   return toTokens(expression).some((token) => token.kind === 'open');
 }

@@ -34,6 +34,11 @@ export class PuzzlePage {
     return level ? LEVELS[level].label : '';
   });
 
+  protected readonly groupRepeats = computed(() => {
+    const level = parseLevel(this.level());
+    return level ? LEVELS[level].groupRepeats : false;
+  });
+
   protected readonly challenge = computed(() => parseChallenge(this.t(), this.h()));
 
   protected readonly challengeVerdict = computed(() => {

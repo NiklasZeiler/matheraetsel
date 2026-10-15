@@ -23,6 +23,7 @@
               [expression]="equation.expression"
               [symbols]="puzzle.symbols"
               [result]="equation.result"
+              [groupRepeats]="groupRepeats()"
             />
           </li>
         }
@@ -46,7 +47,11 @@
           Welche Zahl steckt hinter <span class="picture">{{ puzzle.symbols[puzzle.question.symbol] }}</span>?
         </p>
       } @else {
-        <app-expression-view [expression]="puzzle.question.expression" [symbols]="puzzle.symbols" />
+        <app-expression-view
+          [expression]="puzzle.question.expression"
+          [symbols]="puzzle.symbols"
+          [groupRepeats]="groupRepeats()"
+        />
       }
     </section>
 
