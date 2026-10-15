@@ -28,6 +28,15 @@ h2 {
   text-decoration: none;
 }
 
+p.streak {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius);
+  background: var(--color-accent-soft);
+  color: var(--color-text);
+  font-weight: 600;
+  text-align: center;
+}
+
 .categories {
   display: grid;
   gap: var(--space-2);

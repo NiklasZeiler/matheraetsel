@@ -23,6 +23,10 @@ describe('share links', () => {
     expect(puzzleRoute('kreuzzahl', 'schwer', 3)).toEqual(['/x', 'schwer', encodeSeed(3)]);
   });
 
+  it('uses the p prefix for pyramids', () => {
+    expect(puzzleRoute('pyramide', 'leicht', 9)).toEqual(['/p', 'leicht', encodeSeed(9)]);
+  });
+
   it('round-trips seeds and rejects bad input', () => {
     expect(decodeSeed(encodeSeed(4294967295))).toBe(4294967295);
     expect(decodeSeed('zzzzzzzz')).toBeNull();

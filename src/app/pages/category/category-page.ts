@@ -5,6 +5,7 @@ import { formatDuration } from '../../core/format';
 import { LevelId } from '../../core/levels';
 import { isPuzzleType, PuzzleType } from '../../core/puzzle';
 import { createSeed } from '../../core/random';
+import { dailySeed, dayKey, isDailyDone } from '../../core/daily';
 import { puzzleRoute } from '../../core/share-link';
 import { GameService } from '../../services/game.service';
 
@@ -39,6 +40,18 @@ export class CategoryPage {
         untracked(() => void this.router.navigate(['/']));
       }
     });
+  }
+
+  protected isDone(level: LevelId): boolean {
+    const type = this.puzzleType();
+    return type ? isDailyDone(this.game.daily(), dayKey(), type, level) : false;
+  }
+
+  protected startDaily(level: LevelId): void {
+    const type = this.puzzleType();
+    if (type) {
+      void this.router.navigate(puzzleRoute(type, level, dailySeed(dayKey(), type, level)));
+    }
   }
 
   protected start(level: LevelId): void {

@@ -1,0 +1,22 @@
+<div class="pyramid" role="group" aria-label="Zahlenpyramide">
+  @for (row of rows(); track $index) {
+    <div class="row">
+      @for (stone of row; track stone.cell) {
+        @if (stone.editable) {
+          <button
+            type="button"
+            class="stone blank"
+            [class.active]="stone.active"
+            [class.wrong]="stone.wrong"
+            [attr.aria-label]="'Lücke ' + (stone.text || 'leer')"
+            (click)="cellSelect.emit(stone.cell)"
+          >
+            {{ stone.text }}
+          </button>
+        } @else {
+          <span class="stone" [class.revealed]="stone.revealed">{{ stone.text }}</span>
+        }
+      }
+    </div>
+  }
+</div>

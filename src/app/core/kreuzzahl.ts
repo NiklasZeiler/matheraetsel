@@ -1,6 +1,8 @@
 import { Expression, Operator, binary, symbolLeaf } from './expression';
 import { LevelId } from './levels';
 
+export { blankCells } from './cells';
+
 /**
  * A size x size grid of numbers. Every row and every column is one calculation whose result
  * is printed at its end; the player fills the blank cells.
@@ -51,8 +53,4 @@ export function rowCells(size: number, row: number): number[] {
 
 export function columnCells(size: number, column: number): number[] {
   return Array.from({ length: size }, (_, row) => row * size + column);
-}
-
-export function blankCells(puzzle: KreuzPuzzle): number[] {
-  return puzzle.given.flatMap((given, cell) => (given ? [] : [cell]));
 }

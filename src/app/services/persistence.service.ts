@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { DailyState, dailyEntry } from '../core/daily';
 import { LEVEL_IDS, LevelId, isLevelId } from '../core/levels';
 import { PuzzleType, isPuzzleType } from '../core/puzzle';
 
@@ -27,8 +28,12 @@ const STATS_KEYS: Record<PuzzleType, string> = {
   waage: 'raetsel.stats.waage.v1',
   mobile: 'raetsel.stats.mobile.v1',
   kreuzzahl: 'raetsel.stats.kreuzzahl.v1',
+  pyramide: 'raetsel.stats.pyramide.v1',
 };
 const SESSION_KEY = 'raetsel.session.v1';
+const DAILY_KEY = 'raetsel.daily.v1';
+/** Older days are dropped so the stored list stays small. */
+const DAILY_DAYS_KEPT = 60;
 
 function emptyStats(): Stats {
   return Object.fromEntries(
@@ -67,6 +72,30 @@ export class PersistenceService {
     };
     this.write(STATS_KEYS[type], stats);
     return stats;
+  }
+
+  loadDaily(): DailyState {
+    const stored = this.read(DAILY_KEY);
+    const state: DailyState = {};
+    if (stored && typeof stored === 'object') {
+      for (const [day, entries] of Object.entries(stored)) {
+        if (/^\d{4}-\d{2}-\d{2}$/.test(day) && Array.isArray(entries)) {
+          state[day] = entries.filter((entry): entry is string => typeof entry === 'string');
+        }
+      }
+    }
+    return state;
+  }
+
+  recordDaily(day: string, type: PuzzleType, level: LevelId): DailyState {
+    const state = this.loadDaily();
+    const entry = dailyEntry(type, level);
+    const entries = state[day] ?? [];
+    state[day] = entries.includes(entry) ? entries : [...entries, entry];
+    const kept = Object.keys(state).sort().slice(-DAILY_DAYS_KEPT);
+    const trimmed = Object.fromEntries(kept.map((key) => [key, state[key]]));
+    this.write(DAILY_KEY, trimmed);
+    return trimmed;
   }
 
   loadSession(): Session | null {

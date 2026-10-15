@@ -10,5 +10,6 @@ export const routes: Routes = [
   { path: 'w/:level/:seed', component: PuzzlePage, data: { type: 'waage' } },
   { path: 'm/:level/:seed', component: PuzzlePage, data: { type: 'mobile' } },
   { path: 'x/:level/:seed', component: PuzzlePage, data: { type: 'kreuzzahl' } },
+  { path: 'p/:level/:seed', component: PuzzlePage, data: { type: 'pyramide' } },
   { path: '**', redirectTo: '' },
 ];

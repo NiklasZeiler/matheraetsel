@@ -207,6 +207,17 @@
   font-weight: 700;
 }
 
+h1 .daily-badge {
+  margin-left: var(--space-1);
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  font-size: 0.75rem;
+  font-weight: 700;
+  vertical-align: middle;
+}
+
 .question-pan {
   display: block;
   max-width: 14rem;

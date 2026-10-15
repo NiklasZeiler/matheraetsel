@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { dailySeed, dayKey } from '../core/daily';
 import { GameService } from './game.service';
 
 describe('GameService notes', () => {
@@ -152,6 +153,60 @@ describe('GameService notes', () => {
       expect(game.revealedSymbols()).toHaveLength(max);
       expect(game.solved()).toBe(false);
       expect(game.canHint()).toBe(false);
+    });
+  });
+
+  describe('daily puzzles', () => {
+    function solveCurrent(): void {
+      const puzzle = game.puzzle();
+      if (puzzle) {
+        for (const digit of String(puzzle.question.answer)) {
+          game.pressDigit(Number(digit));
+        }
+      }
+      game.submit();
+    }
+
+    it("recognises today's daily puzzle and counts the streak after solving it", () => {
+      game.start('waage', 'schwer', dailySeed(dayKey(), 'waage', 'schwer'));
+      expect(game.isDaily()).toBe(true);
+      expect(game.streak()).toBe(0);
+
+      solveCurrent();
+
+      expect(game.solved()).toBe(true);
+      expect(game.streak()).toBe(1);
+      expect(game.daily()[dayKey()]).toContain('waage:schwer');
+    });
+
+    it('does not count an ordinary puzzle as daily', () => {
+      game.start('waage', 'schwer', 12345);
+      expect(game.isDaily()).toBe(false);
+
+      solveCurrent();
+
+      expect(game.streak()).toBe(0);
+    });
+  });
+
+  describe('pyramide', () => {
+    it('is solved when all blanks hold the right numbers', () => {
+      game.start('pyramide', 'mittel', 4);
+      const puzzle = game.puzzle();
+      if (puzzle?.kind !== 'pyramide') {
+        throw new Error('expected a pyramid');
+      }
+      puzzle.given.forEach((given, cell) => {
+        if (!given) {
+          game.selectTarget(cell);
+          for (const digit of String(puzzle.values[cell])) {
+            game.pressDigit(Number(digit));
+          }
+        }
+      });
+
+      expect(game.solved()).toBe(true);
+      expect(game.stats().pyramide.mittel.solved).toBe(1);
     });
   });
 });

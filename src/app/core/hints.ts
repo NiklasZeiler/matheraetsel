@@ -19,6 +19,6 @@ export function notesEnabled(puzzle: AnyPuzzle): boolean {
   if (puzzle.kind === 'mobile') {
     return puzzle.mode === 'pictures';
   }
-  // In a kreuzzahl the entered cell values are the notes.
-  return puzzle.kind !== 'kreuzzahl';
+  // In cell puzzles the entered cell values are the notes.
+  return puzzle.kind !== 'kreuzzahl' && puzzle.kind !== 'pyramide';
 }

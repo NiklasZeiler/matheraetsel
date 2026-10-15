@@ -9,7 +9,7 @@
     <section aria-label="Stufen">
       <ul class="levels">
         @for (level of category.levels; track level.id) {
-          <li>
+          <li class="level-row">
             <button type="button" class="level" (click)="start(level.id)">
               <span class="level-name">{{ level.label }}</span>
               <span class="level-description">{{ level.description }}</span>
@@ -21,6 +21,16 @@
                   Noch nicht gelöst
                 }
               </span>
+            </button>
+            <button
+              type="button"
+              class="daily"
+              [class.done]="isDone(level.id)"
+              [attr.aria-label]="'Tagesaufgabe ' + level.label"
+              (click)="startDaily(level.id)"
+            >
+              <span class="daily-label">Heute</span>
+              <span class="daily-mark" aria-hidden="true">{{ isDone(level.id) ? '✓' : '→' }}</span>
             </button>
           </li>
         }

@@ -1,7 +1,8 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { generateAny } from '../core/generate-any';
 import { maxHints, notesEnabled } from '../core/hints';
-import { blankCells } from '../core/kreuzzahl';
+import { blankCells, isCellPuzzle } from '../core/cells';
+import { DailyState, dailySeed, dailyStreak, dayKey } from '../core/daily';
 import { LevelId } from '../core/levels';
 import { AnyPuzzle, PuzzleType } from '../core/puzzle';
 import { PersistenceService, Stats } from './persistence.service';
@@ -32,6 +33,16 @@ export class GameService {
     waage: this.persistence.loadStats('waage'),
     mobile: this.persistence.loadStats('mobile'),
     kreuzzahl: this.persistence.loadStats('kreuzzahl'),
+    pyramide: this.persistence.loadStats('pyramide'),
+  });
+
+  /** Completed daily puzzles per day (stored locally). */
+  readonly daily = signal<DailyState>(this.persistence.loadDaily());
+  readonly streak = computed(() => dailyStreak(this.daily(), dayKey()));
+  /** True while playing today's daily puzzle of this type and level. */
+  readonly isDaily = computed(() => {
+    const puzzle = this.puzzle();
+    return puzzle ? puzzle.seed === dailySeed(dayKey(), puzzle.kind, puzzle.level) : false;
   });
 
   readonly maxHints = computed(() => {
@@ -63,7 +74,7 @@ export class GameService {
     this.elapsedSeconds.set(resumed?.elapsedSeconds ?? 0);
     this.solved.set(resumed?.solved ?? false);
     this.wrongAnswers.set(0);
-    this.target.set(this.puzzle()?.kind === 'kreuzzahl' ? this.nextBlank(-1) : 'answer');
+    this.target.set(this.isCells() ? this.nextBlank(-1) : 'answer');
     this.saveSession();
     this.startTimer();
   }
@@ -105,7 +116,7 @@ export class GameService {
     if (!puzzle || this.solved()) {
       return;
     }
-    if (puzzle.kind === 'kreuzzahl') {
+    if (isCellPuzzle(puzzle)) {
       // The confirm key only moves on; a full grid is checked automatically.
       const current = this.target();
       this.target.set(this.nextBlank(typeof current === 'number' ? current : -1));
@@ -131,7 +142,7 @@ export class GameService {
       this.hintsUsed.update((count) => count + 1);
       const target = this.target();
       if (typeof target === 'number' && this.revealedSymbols().includes(target)) {
-        this.target.set(this.puzzle()?.kind === 'kreuzzahl' ? this.nextBlank(target) : 'answer');
+        this.target.set(this.isCells() ? this.nextBlank(target) : 'answer');
       }
       this.checkCells();
       this.saveSession();
@@ -164,13 +175,21 @@ export class GameService {
       this.hintsUsed(),
     );
     this.stats.update((all) => ({ ...all, [type]: updated }));
+    if (this.isDaily()) {
+      this.daily.set(this.persistence.recordDaily(dayKey(), type, puzzle.level));
+    }
     this.saveSession();
+  }
+
+  private isCells(): boolean {
+    const puzzle = this.puzzle();
+    return puzzle ? isCellPuzzle(puzzle) : false;
   }
 
   /** Kreuzzahl: once every blank holds a number, solve the puzzle or mark the wrong cells. */
   private checkCells(): void {
     const puzzle = this.puzzle();
-    if (puzzle?.kind !== 'kreuzzahl' || this.solved()) {
+    if (!puzzle || !isCellPuzzle(puzzle) || this.solved()) {
       return;
     }
     const revealed = this.revealedSymbols();
@@ -193,7 +212,7 @@ export class GameService {
   /** Next blank cell after `after` that no hint has filled in yet, wrapping around. */
   private nextBlank(after: number): InputTarget {
     const puzzle = this.puzzle();
-    if (puzzle?.kind !== 'kreuzzahl') {
+    if (!puzzle || !isCellPuzzle(puzzle)) {
       return 'answer';
     }
     const revealed = this.revealedSymbols();

@@ -1,6 +1,6 @@
 # Matherätsel
 
-Mobile PWA mit vier Rätselarten, in je vier Stufen. Jedes Bild steht für eine versteckte Zahl.
+Mobile PWA mit fünf Rätselarten, in je vier Stufen. Jedes Bild steht für eine versteckte Zahl.
 
 - **Gleichungen** (`#/r/<stufe>/<seed>`): Gleichungssystem aus Bildern, gefragt ist ein Wert oder Ausdruck.
 - **Waage** (`#/w/<stufe>/<seed>`): Waagen im Gleichgewicht. Leicht und Mittel vergleichen Bilder
@@ -13,6 +13,13 @@ Mobile PWA mit vier Rätselarten, in je vier Stufen. Jedes Bild steht für eine 
 - **Kreuzzahl** (`#/x/<stufe>/<seed>`): Raster aus Zahlen mit Rechenzeichen, am Ende jeder Zeile und
   Spalte steht das Ergebnis. Die Lücken werden einzeln gefüllt, bei vollem Raster wird automatisch
   geprüft. (Das Kürzel `k` ist die Kategorie-Seite `#/k/<art>`.)
+
+- **Pyramide** (`#/p/<stufe>/<seed>`): Summenpyramide, jeder Stein ist die Summe der beiden darunter.
+  Bedienung und Prüfung wie beim Kreuzzahlrätsel.
+
+**Tagesaufgabe:** Bei jeder Stufe gibt es einen Knopf „Heute". Der Seed ergibt sich aus
+Datum (Ortszeit), Rätselart und Stufe (`src/app/core/daily.ts`), alle bekommen also am selben Tag
+dasselbe Rätsel. Erledigte Tage und die Serie liegen lokal im Browser.
 
 Rätsel werden aus Seed und Stufe erzeugt und lassen sich per Link teilen.
 
@@ -27,7 +34,7 @@ npm run build    # Produktions-Build nach dist/matheraetsel
 ## Wichtig
 
 - Der Generator ist deterministisch: gleicher Seed + Stufe = gleiches Rätsel. Änderungen an
-  `generator.ts`, `waage-generator.ts`, `mobile-generator.ts`, `kreuzzahl-generator.ts`, die jeweiligen `*-levels.ts` oder `themes.ts` (alle in `src/app/core/`) machen bestehende Links ungültig,
+  `generator.ts`, `waage-generator.ts`, `mobile-generator.ts`, `kreuzzahl-generator.ts`, `pyramid-generator.ts`, `daily.ts` (Seed-Bildung), die jeweiligen `*-levels.ts` oder `themes.ts` (alle in `src/app/core/`) machen bestehende Links ungültig,
   die Golden-Tests in den `*-generator.spec.ts` schlagen dann an.
 - Routing nutzt Hash-URLs (`#/r/<stufe>/<seed>`), damit jeder statische Host ohne Rewrite-Regeln reicht.
 

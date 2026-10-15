@@ -2,18 +2,26 @@ import { Expression } from './expression';
 import { LevelId } from './levels';
 import { KreuzPuzzle } from './kreuzzahl';
 import { MobilePuzzle } from './mobile';
+import { PyramidPuzzle } from './pyramid';
 import { WaagePuzzle } from './waage';
 
-export type PuzzleType = 'gleichung' | 'waage' | 'mobile' | 'kreuzzahl';
+export type PuzzleType = 'gleichung' | 'waage' | 'mobile' | 'kreuzzahl' | 'pyramide';
 
 export const PUZZLE_TYPE_LABEL: Record<PuzzleType, string> = {
   gleichung: 'Gleichungen',
   waage: 'Waage',
   mobile: 'Mobile',
   kreuzzahl: 'Kreuzzahl',
+  pyramide: 'Pyramide',
 };
 
-export const PUZZLE_TYPES: readonly PuzzleType[] = ['gleichung', 'waage', 'mobile', 'kreuzzahl'];
+export const PUZZLE_TYPES: readonly PuzzleType[] = [
+  'gleichung',
+  'waage',
+  'mobile',
+  'kreuzzahl',
+  'pyramide',
+];
 
 export function isPuzzleType(value: unknown): value is PuzzleType {
   return typeof value === 'string' && (PUZZLE_TYPES as readonly string[]).includes(value);
@@ -43,4 +51,4 @@ export interface Puzzle {
   hintOrder: number[];
 }
 
-export type AnyPuzzle = Puzzle | WaagePuzzle | MobilePuzzle | KreuzPuzzle;
+export type AnyPuzzle = Puzzle | WaagePuzzle | MobilePuzzle | KreuzPuzzle | PyramidPuzzle;

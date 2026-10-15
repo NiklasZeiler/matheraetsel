@@ -2,6 +2,7 @@ import { LEVEL_IDS, LEVELS, LevelId } from './levels';
 import { KREUZ_LEVELS } from './kreuzzahl-levels';
 import { MOBILE_LEVELS } from './mobile-levels';
 import { PUZZLE_TYPE_LABEL, PuzzleType } from './puzzle';
+import { PYRAMID_LEVELS } from './pyramid-levels';
 import { WAAGE_LEVELS } from './waage-levels';
 
 export interface CategoryLevel {
@@ -45,6 +46,12 @@ export const CATEGORIES: readonly Category[] = [
     title: PUZZLE_TYPE_LABEL.kreuzzahl,
     summary: 'Zeilen und Spalten müssen stimmen. Fülle die Lücken.',
     levels: levelsOf((id) => KREUZ_LEVELS[id].description),
+  },
+  {
+    type: 'pyramide',
+    title: PUZZLE_TYPE_LABEL.pyramide,
+    summary: 'Jeder Stein ist die Summe der beiden darunter. Fülle die Lücken.',
+    levels: levelsOf((id) => PYRAMID_LEVELS[id].description),
   },
 ];
 

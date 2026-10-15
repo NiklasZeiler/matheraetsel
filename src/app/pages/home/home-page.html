@@ -10,6 +10,12 @@
     </a>
   }
 
+  @if (game.streak() > 0) {
+    <p class="streak">
+      Serie: {{ game.streak() }} {{ game.streak() === 1 ? 'Tag' : 'Tage' }} in Folge
+    </p>
+  }
+
   <section aria-labelledby="categories-heading">
     <h2 id="categories-heading">Rätselart wählen</h2>
     <ul class="categories">

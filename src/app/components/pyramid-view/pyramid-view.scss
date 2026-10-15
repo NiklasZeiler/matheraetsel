@@ -1,0 +1,46 @@
+.pyramid {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.row {
+  display: flex;
+  justify-content: center;
+  gap: 0.25rem;
+}
+
+.stone {
+  display: grid;
+  flex: 0 0 2.9rem;
+  place-items: center;
+  height: 2.6rem;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-small);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: 1.05rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+
+  &.blank {
+    border-color: var(--color-accent);
+    background: var(--color-accent-soft);
+    cursor: pointer;
+  }
+
+  &.active {
+    box-shadow: 0 0 0 3px var(--color-accent);
+  }
+
+  &.wrong {
+    border-color: #d64545;
+    background: color-mix(in srgb, #d64545 22%, var(--color-surface));
+  }
+
+  &.revealed {
+    border-style: dashed;
+    border-color: var(--color-accent);
+    background: var(--color-accent-soft);
+  }
+}
