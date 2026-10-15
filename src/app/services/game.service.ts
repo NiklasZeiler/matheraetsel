@@ -6,6 +6,9 @@ import { PersistenceService, Stats } from './persistence.service';
 
 const MAX_INPUT_LENGTH = 4;
 
+/** Where the number pad writes: the final answer or the note of one symbol. */
+export type InputTarget = 'answer' | number;
+
 @Injectable({ providedIn: 'root' })
 export class GameService {
   private readonly persistence = inject(PersistenceService);
@@ -13,6 +16,8 @@ export class GameService {
 
   readonly puzzle = signal<Puzzle | null>(null);
   readonly input = signal('');
+  readonly notes = signal<Record<number, string>>({});
+  readonly target = signal<InputTarget>('answer');
   readonly hintsUsed = signal(0);
   readonly elapsedSeconds = signal(0);
   readonly solved = signal(false);
@@ -41,6 +46,8 @@ export class GameService {
 
     this.puzzle.set(generatePuzzle(level, seed));
     this.input.set('');
+    this.notes.set(resumed?.notes ?? {});
+    this.target.set('answer');
     this.hintsUsed.set(resumed?.hintsUsed ?? 0);
     this.elapsedSeconds.set(resumed?.elapsedSeconds ?? 0);
     this.solved.set(resumed?.solved ?? false);
@@ -57,20 +64,36 @@ export class GameService {
     }
   }
 
-  pressDigit(digit: number): void {
-    if (this.solved() || this.input().length >= MAX_INPUT_LENGTH) {
+  selectTarget(target: InputTarget): void {
+    if (typeof target === 'number' && this.revealedSymbols().includes(target)) {
       return;
     }
-    this.input.update((current) => (current === '0' ? String(digit) : current + digit));
+    this.target.set(target);
+  }
+
+  pressDigit(digit: number): void {
+    if (this.solved()) {
+      return;
+    }
+    this.editTarget((current) =>
+      current.length >= MAX_INPUT_LENGTH ? current : current === '0' ? String(digit) : current + digit,
+    );
   }
 
   deleteDigit(): void {
-    this.input.update((current) => current.slice(0, -1));
+    this.editTarget((current) => current.slice(0, -1));
   }
 
   submit(): void {
     const puzzle = this.puzzle();
-    if (!puzzle || this.solved() || this.input() === '') {
+    if (!puzzle || this.solved()) {
+      return;
+    }
+    if (this.target() !== 'answer') {
+      this.target.set('answer');
+      return;
+    }
+    if (this.input() === '') {
       return;
     }
     if (Number(this.input()) === puzzle.question.answer) {
@@ -88,6 +111,20 @@ export class GameService {
   useHint(): void {
     if (this.canHint()) {
       this.hintsUsed.update((count) => count + 1);
+      const target = this.target();
+      if (typeof target === 'number' && this.revealedSymbols().includes(target)) {
+        this.target.set('answer');
+      }
+      this.saveSession();
+    }
+  }
+
+  private editTarget(change: (current: string) => string): void {
+    const target = this.target();
+    if (target === 'answer') {
+      this.input.update(change);
+    } else {
+      this.notes.update((notes) => ({ ...notes, [target]: change(notes[target] ?? '') }));
       this.saveSession();
     }
   }
@@ -112,6 +149,7 @@ export class GameService {
         elapsedSeconds: this.elapsedSeconds(),
         hintsUsed: this.hintsUsed(),
         solved: this.solved(),
+        notes: this.notes(),
       });
     }
   }

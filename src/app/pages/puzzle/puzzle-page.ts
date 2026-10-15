@@ -53,14 +53,23 @@ export class PuzzlePage {
     return seconds === challenge.seconds ? 'Gleichstand!' : 'Diesmal war die Vorgabe schneller.';
   });
 
-  protected readonly revealed = computed(() => {
+  /** One entry per picture: the player's own guess, or the true value once a hint revealed it. */
+  protected readonly noteItems = computed(() => {
     const puzzle = this.game.puzzle();
     if (!puzzle) {
       return [];
     }
-    return this.game
-      .revealedSymbols()
-      .map((symbol) => ({ picture: puzzle.symbols[symbol], value: puzzle.values[symbol] }));
+    const revealed = this.game.revealedSymbols();
+    const notes = this.game.notes();
+    return puzzle.symbols.map((picture, symbol) => {
+      const isRevealed = revealed.includes(symbol);
+      return {
+        symbol,
+        picture,
+        revealed: isRevealed,
+        text: isRevealed ? String(puzzle.values[symbol]) : (notes[symbol] ?? ''),
+      };
+    });
   });
 
   protected readonly hintsLeft = computed(() => this.game.maxHints() - this.game.hintsUsed());

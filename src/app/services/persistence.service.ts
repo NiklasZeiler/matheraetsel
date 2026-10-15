@@ -15,6 +15,8 @@ export interface Session {
   elapsedSeconds: number;
   hintsUsed: number;
   solved: boolean;
+  /** Player's own guesses per symbol index. */
+  notes: Record<number, string>;
 }
 
 const STATS_KEY = 'raetsel.stats.v1';
@@ -69,9 +71,21 @@ export class PersistenceService {
       typeof stored.hintsUsed === 'number' &&
       typeof stored.solved === 'boolean'
     ) {
-      return stored as Session;
+      return { ...(stored as Session), notes: this.cleanNotes(stored.notes) };
     }
     return null;
+  }
+
+  private cleanNotes(value: unknown): Record<number, string> {
+    const notes: Record<number, string> = {};
+    if (value && typeof value === 'object') {
+      for (const [key, text] of Object.entries(value)) {
+        if (/^\d+$/.test(key) && typeof text === 'string' && /^\d{1,4}$/.test(text)) {
+          notes[Number(key)] = text;
+        }
+      }
+    }
+    return notes;
   }
 
   saveSession(session: Session): void {

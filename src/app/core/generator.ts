@@ -17,6 +17,8 @@ import { THEMES } from './themes';
 
 const MAX_PUZZLE_ATTEMPTS = 500;
 const MAX_EXPRESSION_TRIES = 80;
+/** Chance that a level with grouped repeats builds an equation around a repeated picture. */
+const REPEAT_CHANCE = 0.7;
 
 /**
  * Deterministic: the same level and seed always yield the same puzzle, because shared
@@ -76,16 +78,44 @@ function distinctValues(random: Random, count: number, range: readonly [number, 
   return shuffled(random, all).slice(0, count);
 }
 
-function randomTree(random: Random, leaves: readonly number[], operators: readonly Operator[]): Expression {
+function randomTree(
+  random: Random,
+  leaves: readonly number[],
+  operators: readonly Operator[],
+  plusBetweenEqual: boolean,
+): Expression {
   if (leaves.length === 1) {
     return symbolLeaf(leaves[0]);
   }
   const split = randomInt(random, 1, leaves.length - 1);
+  const picked = pickOne(random, operators);
+  // Equal neighbours joined by "+" are displayed as a group, e.g. "🍌🍌".
+  const operator = plusBetweenEqual && leaves[split - 1] === leaves[split] ? '+' : picked;
   return binary(
-    pickOne(random, operators),
-    randomTree(random, leaves.slice(0, split), operators),
-    randomTree(random, leaves.slice(split), operators),
+    operator,
+    randomTree(random, leaves.slice(0, split), operators, plusBetweenEqual),
+    randomTree(random, leaves.slice(split), operators, plusBetweenEqual),
   );
+}
+
+/** Builds a random expression; on grouping levels it often centres it on a repeated picture. */
+function buildExpression(random: Random, level: LevelConfig, leaves: readonly number[]): Expression {
+  const repeat = level.groupRepeats && random() < REPEAT_CHANCE;
+  let ordered = shuffled(random, leaves);
+  if (repeat) {
+    if (new Set(ordered).size === ordered.length) {
+      ordered = [...ordered, pickOne(random, ordered)];
+    }
+    const firstPosition = new Map<number, number>();
+    ordered.forEach((symbol, position) => {
+      if (!firstPosition.has(symbol)) {
+        firstPosition.set(symbol, position);
+      }
+    });
+    const positionOf = (symbol: number) => firstPosition.get(symbol) ?? 0;
+    ordered = [...ordered].sort((left, right) => positionOf(left) - positionOf(right));
+  }
+  return randomTree(random, ordered, level.operators, repeat);
 }
 
 function isUnsuitable(expression: Expression, level: LevelConfig): boolean {
@@ -116,7 +146,7 @@ function buildEquation(
       randomInt(random, level.occurrences[0], level.occurrences[1]),
     );
     const extras = Array.from({ length: count - required.length }, () => pickOne(random, pool));
-    const expression = randomTree(random, shuffled(random, [...required, ...extras]), level.operators);
+    const expression = buildExpression(random, level, [...required, ...extras]);
     if (isUnsuitable(expression, level)) {
       continue;
     }
@@ -145,7 +175,7 @@ function buildQuestion(random: Random, level: LevelConfig, values: readonly numb
   for (let attempt = 0; attempt < MAX_EXPRESSION_TRIES; attempt++) {
     const extraCount = randomInt(random, 0, 1);
     const leaves = [last, others[0], others[1], ...Array.from({ length: extraCount }, () => pickOne(random, others))];
-    const expression = randomTree(random, shuffled(random, leaves), level.operators);
+    const expression = buildExpression(random, level, leaves);
     if (isUnsuitable(expression, level)) {
       continue;
     }

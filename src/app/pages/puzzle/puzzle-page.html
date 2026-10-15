@@ -30,18 +30,29 @@
       </ol>
     </section>
 
-    @if (revealed().length > 0) {
-      <section aria-label="Verratene Werte">
-        <ul class="revealed">
-          @for (item of revealed(); track item.picture) {
-            <li><span aria-hidden="true">{{ item.picture }}</span> = {{ item.value }}</li>
-          }
-        </ul>
-      </section>
-    }
+    <section aria-labelledby="notes-heading">
+      <h2 id="notes-heading" class="section-title">Meine Notizen</h2>
+      <ul class="notes">
+        @for (item of noteItems(); track item.symbol) {
+          <li>
+            <button
+              type="button"
+              class="note"
+              [class.active]="game.target() === item.symbol"
+              [class.revealed]="item.revealed"
+              [disabled]="item.revealed || game.solved()"
+              [attr.aria-pressed]="game.target() === item.symbol"
+              (click)="game.selectTarget(item.symbol)"
+            >
+              <span aria-hidden="true">{{ item.picture }}</span> = {{ item.text || '?' }}
+            </button>
+          </li>
+        }
+      </ul>
+    </section>
 
     <section class="question" aria-labelledby="question-heading">
-      <h2 id="question-heading">Gesucht</h2>
+      <h2 id="question-heading" class="section-title">Gesucht</h2>
       @if (puzzle.question.kind === 'symbol') {
         <p class="question-text">
           Welche Zahl steckt hinter <span class="picture">{{ puzzle.symbols[puzzle.question.symbol] }}</span>?
@@ -71,19 +82,21 @@
       </section>
     } @else {
       <section aria-label="Antwort">
-        <p
+        <button
+          type="button"
           class="answer"
+          [class.active]="game.target() === 'answer'"
           [class.wrong]="game.wrongAnswers() > 0"
           [attr.data-attempt]="game.wrongAnswers()"
-          aria-live="polite"
+          (click)="game.selectTarget('answer')"
         >
-          {{ game.input() || '…' }}
-        </p>
+          {{ game.input() || 'Antwort' }}
+        </button>
         @if (game.wrongAnswers() > 0 && game.input() === '') {
           <p class="feedback">Das stimmt noch nicht – versuch es noch einmal.</p>
         }
         <app-numpad
-          [confirmDisabled]="game.input() === ''"
+          [confirmDisabled]="game.target() === 'answer' && game.input() === ''"
           (digit)="game.pressDigit($event)"
           (erase)="game.deleteDigit()"
           (confirm)="game.submit()"

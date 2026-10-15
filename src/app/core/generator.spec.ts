@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { describe as describeExpression, evaluate, hasParentheses } from './expression';
+import {
+  describe as describeExpression,
+  evaluate,
+  groupRepeatedSymbols,
+  hasParentheses,
+  toTokens,
+} from './expression';
 import { generatePuzzle } from './generator';
 import { LEVELS, LEVEL_IDS } from './levels';
 import { solve } from './solver';
@@ -48,6 +54,17 @@ describe('generatePuzzle', () => {
       });
     });
   }
+
+  it('often shows repeated pictures from level schwer on', () => {
+    for (const levelId of ['schwer', 'knobler'] as const) {
+      const withGroup = SEEDS.filter((seed) =>
+        generatePuzzle(levelId, seed).equations.some((equation) =>
+          groupRepeatedSymbols(toTokens(equation.expression)).some((token) => token.kind === 'group'),
+        ),
+      );
+      expect(withGroup.length / SEEDS.length).toBeGreaterThan(0.8);
+    }
+  });
 
   it('keeps existing links stable (golden puzzle)', () => {
     const puzzle = generatePuzzle('leicht', 1);
