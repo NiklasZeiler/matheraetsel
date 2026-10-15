@@ -93,4 +93,65 @@ describe('GameService notes', () => {
     expect(game.solved()).toBe(true);
     expect(game.stats().mobile.schwer.solved).toBe(1);
   });
+
+  describe('kreuzzahl', () => {
+    function blanks(): { cell: number; value: number }[] {
+      const puzzle = game.puzzle();
+      if (puzzle?.kind !== 'kreuzzahl') {
+        throw new Error('expected a kreuzzahl puzzle');
+      }
+      return puzzle.given.flatMap((given, cell) =>
+        given ? [] : [{ cell, value: puzzle.values[cell] }],
+      );
+    }
+
+    function enter(cell: number, value: number): void {
+      game.selectTarget(cell);
+      for (const digit of String(value)) {
+        game.pressDigit(Number(digit));
+      }
+    }
+
+    beforeEach(() => game.start('kreuzzahl', 'schwer', 5));
+
+    it('starts on the first blank and offers no notes section', () => {
+      expect(typeof game.target()).toBe('number');
+      expect(game.notesEnabled()).toBe(false);
+    });
+
+    it('is solved automatically once every blank is right', () => {
+      const all = blanks();
+      all.slice(0, -1).forEach(({ cell, value }) => enter(cell, value));
+      expect(game.solved()).toBe(false);
+
+      const last = all[all.length - 1];
+      enter(last.cell, last.value);
+
+      expect(game.solved()).toBe(true);
+      expect(game.stats().kreuzzahl.schwer.solved).toBe(1);
+    });
+
+    it('marks wrong cells when the grid is full and clears them on edit', () => {
+      const all = blanks();
+      all.forEach(({ cell, value }, index) => enter(cell, index === 0 ? value + 1 : value));
+
+      expect(game.solved()).toBe(false);
+      expect(game.wrongCells()).toEqual([all[0].cell]);
+
+      game.selectTarget(all[0].cell);
+      game.deleteDigit();
+      expect(game.wrongCells()).toEqual([]);
+    });
+
+    it('fills a blank with the next hint and never solves the puzzle by hints alone', () => {
+      const max = game.maxHints();
+      for (let hint = 0; hint < max; hint++) {
+        game.useHint();
+      }
+
+      expect(game.revealedSymbols()).toHaveLength(max);
+      expect(game.solved()).toBe(false);
+      expect(game.canHint()).toBe(false);
+    });
+  });
 });

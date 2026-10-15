@@ -19,6 +19,10 @@ describe('share links', () => {
     expect(puzzleRoute('mobile', 'knobler', 7)).toEqual(['/m', 'knobler', encodeSeed(7)]);
   });
 
+  it('uses the x prefix for kreuzzahl puzzles', () => {
+    expect(puzzleRoute('kreuzzahl', 'schwer', 3)).toEqual(['/x', 'schwer', encodeSeed(3)]);
+  });
+
   it('round-trips seeds and rejects bad input', () => {
     expect(decodeSeed(encodeSeed(4294967295))).toBe(4294967295);
     expect(decodeSeed('zzzzzzzz')).toBeNull();

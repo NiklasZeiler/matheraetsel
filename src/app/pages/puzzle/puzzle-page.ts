@@ -2,6 +2,7 @@ import { Component, DestroyRef, computed, effect, inject, input, untracked } fro
 import { Router, RouterLink } from '@angular/router';
 import { ExpressionView } from '../../components/expression-view/expression-view';
 import { Numpad } from '../../components/numpad/numpad';
+import { KreuzView } from '../../components/kreuz-view/kreuz-view';
 import { FitWidth } from '../../components/fit-width/fit-width';
 import { MobileView } from '../../components/mobile-view/mobile-view';
 import { PanView } from '../../components/pan-view/pan-view';
@@ -17,7 +18,16 @@ import { ShareService } from '../../services/share.service';
 
 @Component({
   selector: 'app-puzzle-page',
-  imports: [RouterLink, ExpressionView, Numpad, PanView, ScaleView, MobileView, FitWidth],
+  imports: [
+    RouterLink,
+    ExpressionView,
+    Numpad,
+    PanView,
+    ScaleView,
+    MobileView,
+    FitWidth,
+    KreuzView,
+  ],
   templateUrl: './puzzle-page.html',
   styleUrl: './puzzle-page.scss',
 })
@@ -50,6 +60,14 @@ export class PuzzlePage {
     const puzzle = this.game.puzzle();
     return puzzle?.kind === 'waage' ? puzzle : null;
   });
+
+  protected readonly kreuz = computed(() => {
+    const puzzle = this.game.puzzle();
+    return puzzle?.kind === 'kreuzzahl' ? puzzle : null;
+  });
+
+  /** The number pad's current target as a cell index, or 'answer'. */
+  protected readonly activeCell = computed(() => this.game.target());
 
   protected readonly mobile = computed(() => {
     const puzzle = this.game.puzzle();

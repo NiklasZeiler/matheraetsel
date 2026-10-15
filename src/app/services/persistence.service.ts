@@ -26,6 +26,7 @@ const STATS_KEYS: Record<PuzzleType, string> = {
   gleichung: 'raetsel.stats.v1',
   waage: 'raetsel.stats.waage.v1',
   mobile: 'raetsel.stats.mobile.v1',
+  kreuzzahl: 'raetsel.stats.kreuzzahl.v1',
 };
 const SESSION_KEY = 'raetsel.session.v1';
 

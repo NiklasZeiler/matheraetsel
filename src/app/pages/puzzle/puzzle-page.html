@@ -42,6 +42,19 @@
       </section>
     }
 
+    @if (kreuz(); as grid) {
+      <section aria-label="Kreuzzahlrätsel">
+        <app-kreuz-view
+          [puzzle]="grid"
+          [entries]="game.notes()"
+          [revealed]="game.revealedSymbols()"
+          [wrong]="game.wrongCells()"
+          [active]="activeCell()"
+          (cellSelect)="game.selectTarget($event)"
+        />
+      </section>
+    }
+
     @if (mobile(); as mobilePuzzle) {
       <section aria-label="Mobile">
         <app-fit-width>
@@ -128,6 +141,9 @@
           Wie viel wiegt das Untermobile mit dem <strong>?</strong> zusammen?
         </p>
       }
+      @if (kreuz()) {
+        <p class="question-text">Fülle die Lücken, sodass jede Zeile und jede Spalte stimmt.</p>
+      }
       @if (waageCount(); as question) {
         <p class="question-text">
           Wie viele <span class="picture">{{ puzzle.symbols[question.unit] }}</span> wiegen so viel
@@ -149,7 +165,11 @@
 
     @if (game.solved()) {
       <section class="solved" aria-live="polite">
-        <p class="solved-title">Richtig! 🎉 Die Lösung ist {{ puzzle.question.answer }}.</p>
+        @if (kreuz()) {
+          <p class="solved-title">Richtig! 🎉 Alle Lücken stimmen.</p>
+        } @else {
+          <p class="solved-title">Richtig! 🎉 Die Lösung ist {{ puzzle.question.answer }}.</p>
+        }
         <p>{{ formatDuration(game.elapsedSeconds()) }} {{ hintsLabel(game.hintsUsed()) }}</p>
         @if (challengeVerdict()) {
           <p class="verdict">{{ challengeVerdict() }}</p>
@@ -161,18 +181,24 @@
       </section>
     } @else {
       <section aria-label="Antwort">
-        <button
-          type="button"
-          class="answer"
-          [class.active]="game.target() === 'answer'"
-          [class.wrong]="game.wrongAnswers() > 0"
-          [attr.data-attempt]="game.wrongAnswers()"
-          (click)="game.selectTarget('answer')"
-        >
-          {{ game.input() || 'Antwort' }}
-        </button>
-        @if (game.wrongAnswers() > 0 && game.input() === '') {
-          <p class="feedback">Das stimmt noch nicht – versuch es noch einmal.</p>
+        @if (kreuz()) {
+          @if (game.wrongCells().length > 0) {
+            <p class="feedback">Mindestens eine Zahl stimmt noch nicht – sie ist rot markiert.</p>
+          }
+        } @else {
+          <button
+            type="button"
+            class="answer"
+            [class.active]="game.target() === 'answer'"
+            [class.wrong]="game.wrongAnswers() > 0"
+            [attr.data-attempt]="game.wrongAnswers()"
+            (click)="game.selectTarget('answer')"
+          >
+            {{ game.input() || 'Antwort' }}
+          </button>
+          @if (game.wrongAnswers() > 0 && game.input() === '') {
+            <p class="feedback">Das stimmt noch nicht – versuch es noch einmal.</p>
+          }
         }
         <app-numpad
           [confirmDisabled]="game.target() === 'answer' && game.input() === ''"

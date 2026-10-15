@@ -1,6 +1,7 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { generateAny } from '../core/generate-any';
 import { maxHints, notesEnabled } from '../core/hints';
+import { blankCells } from '../core/kreuzzahl';
 import { LevelId } from '../core/levels';
 import { AnyPuzzle, PuzzleType } from '../core/puzzle';
 import { PersistenceService, Stats } from './persistence.service';
@@ -24,10 +25,13 @@ export class GameService {
   readonly solved = signal(false);
   /** Increments on every wrong answer so the view can replay its shake animation. */
   readonly wrongAnswers = signal(0);
+  /** Kreuzzahl: cells that were filled in wrongly at the last full check. */
+  readonly wrongCells = signal<number[]>([]);
   readonly stats = signal<Record<PuzzleType, Stats>>({
     gleichung: this.persistence.loadStats('gleichung'),
     waage: this.persistence.loadStats('waage'),
     mobile: this.persistence.loadStats('mobile'),
+    kreuzzahl: this.persistence.loadStats('kreuzzahl'),
   });
 
   readonly maxHints = computed(() => {
@@ -54,11 +58,12 @@ export class GameService {
     this.puzzle.set(generateAny(type, level, seed));
     this.input.set('');
     this.notes.set(resumed?.notes ?? {});
-    this.target.set('answer');
+    this.wrongCells.set([]);
     this.hintsUsed.set(resumed?.hintsUsed ?? 0);
     this.elapsedSeconds.set(resumed?.elapsedSeconds ?? 0);
     this.solved.set(resumed?.solved ?? false);
     this.wrongAnswers.set(0);
+    this.target.set(this.puzzle()?.kind === 'kreuzzahl' ? this.nextBlank(-1) : 'answer');
     this.saveSession();
     this.startTimer();
   }
@@ -100,6 +105,12 @@ export class GameService {
     if (!puzzle || this.solved()) {
       return;
     }
+    if (puzzle.kind === 'kreuzzahl') {
+      // The confirm key only moves on; a full grid is checked automatically.
+      const current = this.target();
+      this.target.set(this.nextBlank(typeof current === 'number' ? current : -1));
+      return;
+    }
     if (this.target() !== 'answer') {
       this.target.set('answer');
       return;
@@ -108,16 +119,7 @@ export class GameService {
       return;
     }
     if (Number(this.input()) === puzzle.question.answer) {
-      this.solved.set(true);
-      const type: PuzzleType = puzzle.kind;
-      const updated = this.persistence.recordSolved(
-        type,
-        puzzle.level,
-        this.elapsedSeconds(),
-        this.hintsUsed(),
-      );
-      this.stats.update((all) => ({ ...all, [type]: updated }));
-      this.saveSession();
+      this.finishSolved();
     } else {
       this.wrongAnswers.update((count) => count + 1);
       this.input.set('');
@@ -129,8 +131,9 @@ export class GameService {
       this.hintsUsed.update((count) => count + 1);
       const target = this.target();
       if (typeof target === 'number' && this.revealedSymbols().includes(target)) {
-        this.target.set('answer');
+        this.target.set(this.puzzle()?.kind === 'kreuzzahl' ? this.nextBlank(target) : 'answer');
       }
+      this.checkCells();
       this.saveSession();
     }
   }
@@ -141,8 +144,61 @@ export class GameService {
       this.input.update(change);
     } else {
       this.notes.update((notes) => ({ ...notes, [target]: change(notes[target] ?? '') }));
+      this.wrongCells.set([]);
+      this.checkCells();
       this.saveSession();
     }
+  }
+
+  private finishSolved(): void {
+    const puzzle = this.puzzle();
+    if (!puzzle || this.solved()) {
+      return;
+    }
+    this.solved.set(true);
+    const type: PuzzleType = puzzle.kind;
+    const updated = this.persistence.recordSolved(
+      type,
+      puzzle.level,
+      this.elapsedSeconds(),
+      this.hintsUsed(),
+    );
+    this.stats.update((all) => ({ ...all, [type]: updated }));
+    this.saveSession();
+  }
+
+  /** Kreuzzahl: once every blank holds a number, solve the puzzle or mark the wrong cells. */
+  private checkCells(): void {
+    const puzzle = this.puzzle();
+    if (puzzle?.kind !== 'kreuzzahl' || this.solved()) {
+      return;
+    }
+    const revealed = this.revealedSymbols();
+    const blanks = blankCells(puzzle);
+    const entries = this.notes();
+    if (blanks.some((cell) => !revealed.includes(cell) && !entries[cell])) {
+      return;
+    }
+    const wrong = blanks.filter(
+      (cell) => !revealed.includes(cell) && Number(entries[cell]) !== puzzle.values[cell],
+    );
+    if (wrong.length === 0) {
+      this.finishSolved();
+    } else {
+      this.wrongCells.set(wrong);
+      this.wrongAnswers.update((count) => count + 1);
+    }
+  }
+
+  /** Next blank cell after `after` that no hint has filled in yet, wrapping around. */
+  private nextBlank(after: number): InputTarget {
+    const puzzle = this.puzzle();
+    if (puzzle?.kind !== 'kreuzzahl') {
+      return 'answer';
+    }
+    const revealed = this.revealedSymbols();
+    const open = blankCells(puzzle).filter((cell) => !revealed.includes(cell));
+    return open.find((cell) => cell > after) ?? open[0] ?? 'answer';
   }
 
   private startTimer(): void {

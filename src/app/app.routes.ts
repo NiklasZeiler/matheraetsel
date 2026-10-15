@@ -9,5 +9,6 @@ export const routes: Routes = [
   { path: 'r/:level/:seed', component: PuzzlePage, data: { type: 'gleichung' } },
   { path: 'w/:level/:seed', component: PuzzlePage, data: { type: 'waage' } },
   { path: 'm/:level/:seed', component: PuzzlePage, data: { type: 'mobile' } },
+  { path: 'x/:level/:seed', component: PuzzlePage, data: { type: 'kreuzzahl' } },
   { path: '**', redirectTo: '' },
 ];

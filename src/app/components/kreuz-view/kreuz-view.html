@@ -1,0 +1,37 @@
+<div
+  class="grid"
+  role="group"
+  aria-label="Kreuzzahlrätsel"
+  [style.gridTemplateColumns]="template()"
+  [style.gridTemplateRows]="template()"
+>
+  @for (item of items(); track $index) {
+    @switch (item.kind) {
+      @case ('cell') {
+        @if (item.editable) {
+          <button
+            type="button"
+            class="cell blank"
+            [class.active]="item.active"
+            [class.wrong]="item.wrong"
+            [attr.aria-label]="'Lücke ' + (item.text || 'leer')"
+            (click)="cellSelect.emit(item.cell)"
+          >
+            {{ item.text }}
+          </button>
+        } @else {
+          <span class="cell" [class.revealed]="item.revealed">{{ item.text }}</span>
+        }
+      }
+      @case ('result') {
+        <span class="result">{{ item.text }}</span>
+      }
+      @case ('empty') {
+        <span></span>
+      }
+      @default {
+        <span class="sign" aria-hidden="true">{{ item.text }}</span>
+      }
+    }
+  }
+</div>

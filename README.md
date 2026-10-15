@@ -1,6 +1,6 @@
 # Matherätsel
 
-Mobile PWA mit drei Rätselarten, in je vier Stufen. Jedes Bild steht für eine versteckte Zahl.
+Mobile PWA mit vier Rätselarten, in je vier Stufen. Jedes Bild steht für eine versteckte Zahl.
 
 - **Gleichungen** (`#/r/<stufe>/<seed>`): Gleichungssystem aus Bildern, gefragt ist ein Wert oder Ausdruck.
 - **Waage** (`#/w/<stufe>/<seed>`): Waagen im Gleichgewicht. Leicht und Mittel vergleichen Bilder
@@ -9,6 +9,10 @@ Mobile PWA mit drei Rätselarten, in je vier Stufen. Jedes Bild steht für eine 
 - **Mobile** (`#/m/<stufe>/<seed>`): verschachtelte Balken im Gleichgewicht, ein Untermobile zählt
   mit der Summe aller Gewichte darin. Leicht und Mittel: Zahlen mit einer Lücke, Schwer und
   Knobler: Bilder (gesucht ein Bild oder das Gewicht eines markierten Untermobiles).
+
+- **Kreuzzahl** (`#/x/<stufe>/<seed>`): Raster aus Zahlen mit Rechenzeichen, am Ende jeder Zeile und
+  Spalte steht das Ergebnis. Die Lücken werden einzeln gefüllt, bei vollem Raster wird automatisch
+  geprüft. (Das Kürzel `k` ist die Kategorie-Seite `#/k/<art>`.)
 
 Rätsel werden aus Seed und Stufe erzeugt und lassen sich per Link teilen.
 
@@ -23,7 +27,7 @@ npm run build    # Produktions-Build nach dist/matheraetsel
 ## Wichtig
 
 - Der Generator ist deterministisch: gleicher Seed + Stufe = gleiches Rätsel. Änderungen an
-  `generator.ts`, `waage-generator.ts`, `mobile-generator.ts`, die jeweiligen `*-levels.ts` oder `themes.ts` (alle in `src/app/core/`) machen bestehende Links ungültig,
+  `generator.ts`, `waage-generator.ts`, `mobile-generator.ts`, `kreuzzahl-generator.ts`, die jeweiligen `*-levels.ts` oder `themes.ts` (alle in `src/app/core/`) machen bestehende Links ungültig,
   die Golden-Tests in den `*-generator.spec.ts` schlagen dann an.
 - Routing nutzt Hash-URLs (`#/r/<stufe>/<seed>`), damit jeder statische Host ohne Rewrite-Regeln reicht.
 

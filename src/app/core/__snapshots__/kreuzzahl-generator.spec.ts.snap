@@ -1,0 +1,210 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`generateKreuzzahl > keeps existing links stable (golden puzzle) 1`] = `
+[
+  {
+    "columnOperators": [
+      [
+        "-",
+      ],
+      [
+        "+",
+      ],
+    ],
+    "columnResults": [
+      6,
+      11,
+    ],
+    "given": [
+      true,
+      true,
+      false,
+      false,
+    ],
+    "levelId": "leicht",
+    "rowOperators": [
+      [
+        "-",
+      ],
+      [
+        "+",
+      ],
+    ],
+    "rowResults": [
+      5,
+      10,
+    ],
+    "values": [
+      9,
+      4,
+      3,
+      7,
+    ],
+  },
+  {
+    "columnOperators": [
+      [
+        "+",
+      ],
+      [
+        "*",
+      ],
+    ],
+    "columnResults": [
+      23,
+      4,
+    ],
+    "given": [
+      true,
+      false,
+      false,
+      false,
+    ],
+    "levelId": "mittel",
+    "rowOperators": [
+      [
+        "+",
+      ],
+      [
+        "+",
+      ],
+    ],
+    "rowResults": [
+      15,
+      12,
+    ],
+    "values": [
+      13,
+      2,
+      10,
+      2,
+    ],
+  },
+  {
+    "columnOperators": [
+      [
+        "+",
+        "+",
+      ],
+      [
+        "+",
+        "*",
+      ],
+      [
+        "+",
+        "+",
+      ],
+    ],
+    "columnResults": [
+      28,
+      46,
+      20,
+    ],
+    "given": [
+      false,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false,
+      false,
+    ],
+    "levelId": "schwer",
+    "rowOperators": [
+      [
+        "+",
+        "+",
+      ],
+      [
+        "*",
+        "+",
+      ],
+      [
+        "+",
+        "+",
+      ],
+    ],
+    "rowResults": [
+      20,
+      62,
+      24,
+    ],
+    "values": [
+      9,
+      6,
+      5,
+      11,
+      5,
+      7,
+      8,
+      8,
+      8,
+    ],
+  },
+  {
+    "columnOperators": [
+      [
+        "+",
+        "*",
+      ],
+      [
+        "+",
+        "+",
+      ],
+      [
+        "+",
+        "*",
+      ],
+    ],
+    "columnResults": [
+      72,
+      35,
+      219,
+    ],
+    "given": [
+      false,
+      false,
+      true,
+      true,
+      false,
+      true,
+      true,
+      false,
+      false,
+    ],
+    "levelId": "knobler",
+    "rowOperators": [
+      [
+        "*",
+        "+",
+      ],
+      [
+        "-",
+        "-",
+      ],
+      [
+        "*",
+        "*",
+      ],
+    ],
+    "rowResults": [
+      393,
+      8,
+      504,
+    ],
+    "values": [
+      15,
+      26,
+      3,
+      19,
+      2,
+      9,
+      3,
+      7,
+      24,
+    ],
+  },
+]
+`;
