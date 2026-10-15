@@ -27,6 +27,7 @@ export class GameService {
   readonly stats = signal<Record<PuzzleType, Stats>>({
     gleichung: this.persistence.loadStats('gleichung'),
     waage: this.persistence.loadStats('waage'),
+    mobile: this.persistence.loadStats('mobile'),
   });
 
   readonly maxHints = computed(() => {

@@ -34,7 +34,7 @@ export function parseChallenge(
 }
 
 /** Route prefix per puzzle type; "r" must stay for the equation links that already exist. */
-const ROUTE_PREFIX: Record<PuzzleType, string> = { gleichung: 'r', waage: 'w' };
+const ROUTE_PREFIX: Record<PuzzleType, string> = { gleichung: 'r', waage: 'w', mobile: 'm' };
 
 /** Relative route for the router (hash routing keeps this working on any static host). */
 export function puzzleRoute(type: PuzzleType, level: LevelId, seed: number): string[] {

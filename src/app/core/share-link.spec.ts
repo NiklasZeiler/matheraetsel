@@ -15,6 +15,10 @@ describe('share links', () => {
     expect(puzzleRoute('waage', 'leicht', 5)).toEqual(['/w', 'leicht', encodeSeed(5)]);
   });
 
+  it('uses the m prefix for mobile puzzles', () => {
+    expect(puzzleRoute('mobile', 'knobler', 7)).toEqual(['/m', 'knobler', encodeSeed(7)]);
+  });
+
   it('round-trips seeds and rejects bad input', () => {
     expect(decodeSeed(encodeSeed(4294967295))).toBe(4294967295);
     expect(decodeSeed('zzzzzzzz')).toBeNull();

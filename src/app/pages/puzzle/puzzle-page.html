@@ -42,6 +42,18 @@
       </section>
     }
 
+    @if (mobile(); as mobilePuzzle) {
+      <section aria-label="Mobile">
+        <app-fit-width>
+          <app-mobile-view
+            [bar]="mobilePuzzle.root"
+            [symbols]="mobilePuzzle.symbols"
+            [showLabels]="mobilePuzzle.mode === 'numbers'"
+          />
+        </app-fit-width>
+      </section>
+    }
+
     @if (game.notesEnabled()) {
       <section aria-labelledby="notes-heading">
         <h2 id="notes-heading" class="section-title">Meine Notizen</h2>
@@ -59,6 +71,16 @@
               >
                 <span aria-hidden="true">{{ item.picture }}</span> = {{ item.text || '?' }}
               </button>
+            </li>
+          }
+        </ul>
+      </section>
+    } @else if (mobileHints().length > 0) {
+      <section aria-label="Hinweise">
+        <ul class="notes">
+          @for (hint of mobileHints(); track hint.label) {
+            <li class="note revealed" aria-label="Hinweis">
+              Mobile {{ hint.label }} wiegt zusammen {{ hint.total }}
             </li>
           }
         </ul>
@@ -91,6 +113,20 @@
             [groupRepeats]="groupRepeats()"
           />
         }
+      }
+      @if (mobileUnknown()) {
+        <p class="question-text">Welche Zahl gehört an die Stelle von <strong>?</strong></p>
+      }
+      @if (mobileSymbol(); as question) {
+        <p class="question-text">
+          Wie viel wiegt <span class="picture">{{ puzzle.symbols[question.symbol] }}</span
+          >?
+        </p>
+      }
+      @if (mobilePart()) {
+        <p class="question-text">
+          Wie viel wiegt das Untermobile mit dem <strong>?</strong> zusammen?
+        </p>
       }
       @if (waageCount(); as question) {
         <p class="question-text">

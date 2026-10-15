@@ -1,16 +1,20 @@
 import { Expression } from './expression';
 import { LevelId } from './levels';
+import { MobilePuzzle } from './mobile';
 import { WaagePuzzle } from './waage';
 
-export type PuzzleType = 'gleichung' | 'waage';
+export type PuzzleType = 'gleichung' | 'waage' | 'mobile';
 
 export const PUZZLE_TYPE_LABEL: Record<PuzzleType, string> = {
   gleichung: 'Gleichungen',
   waage: 'Waage',
+  mobile: 'Mobile',
 };
 
+export const PUZZLE_TYPES: readonly PuzzleType[] = ['gleichung', 'waage', 'mobile'];
+
 export function isPuzzleType(value: unknown): value is PuzzleType {
-  return value === 'gleichung' || value === 'waage';
+  return typeof value === 'string' && (PUZZLE_TYPES as readonly string[]).includes(value);
 }
 
 export interface Equation {
@@ -37,4 +41,4 @@ export interface Puzzle {
   hintOrder: number[];
 }
 
-export type AnyPuzzle = Puzzle | WaagePuzzle;
+export type AnyPuzzle = Puzzle | WaagePuzzle | MobilePuzzle;

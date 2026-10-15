@@ -1,0 +1,299 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`generateMobile > keeps existing links stable (golden puzzle) 1`] = `
+[
+  {
+    "levelId": "leicht",
+    "question": {
+      "answer": 4,
+      "kind": "unknown",
+    },
+    "root": {
+      "left": [
+        {
+          "kind": "unknown",
+          "weight": 4,
+        },
+        {
+          "asked": false,
+          "bar": {
+            "left": [
+              {
+                "kind": "number",
+                "weight": 2,
+              },
+            ],
+            "right": [
+              {
+                "kind": "number",
+                "weight": 1,
+              },
+              {
+                "kind": "number",
+                "weight": 1,
+              },
+            ],
+          },
+          "id": 0,
+          "kind": "mobile",
+        },
+      ],
+      "right": [
+        {
+          "kind": "number",
+          "weight": 2,
+        },
+        {
+          "kind": "number",
+          "weight": 6,
+        },
+      ],
+    },
+    "symbols": [],
+  },
+  {
+    "levelId": "mittel",
+    "question": {
+      "answer": 22,
+      "kind": "unknown",
+    },
+    "root": {
+      "left": [
+        {
+          "asked": false,
+          "bar": {
+            "left": [
+              {
+                "kind": "number",
+                "weight": 15,
+              },
+            ],
+            "right": [
+              {
+                "asked": false,
+                "bar": {
+                  "left": [
+                    {
+                      "kind": "number",
+                      "weight": 3,
+                    },
+                  ],
+                  "right": [
+                    {
+                      "kind": "number",
+                      "weight": 2,
+                    },
+                    {
+                      "kind": "number",
+                      "weight": 1,
+                    },
+                  ],
+                },
+                "id": 1,
+                "kind": "mobile",
+              },
+              {
+                "kind": "number",
+                "weight": 9,
+              },
+            ],
+          },
+          "id": 0,
+          "kind": "mobile",
+        },
+        {
+          "kind": "number",
+          "weight": 4,
+        },
+      ],
+      "right": [
+        {
+          "kind": "unknown",
+          "weight": 22,
+        },
+        {
+          "kind": "number",
+          "weight": 12,
+        },
+      ],
+    },
+    "symbols": [],
+  },
+  {
+    "levelId": "schwer",
+    "question": {
+      "answer": 6,
+      "kind": "symbol",
+      "symbol": 1,
+    },
+    "root": {
+      "left": [
+        {
+          "asked": false,
+          "bar": {
+            "left": [
+              {
+                "kind": "number",
+                "weight": 8,
+              },
+            ],
+            "right": [
+              {
+                "kind": "picture",
+                "symbol": 0,
+              },
+              {
+                "kind": "number",
+                "weight": 6,
+              },
+            ],
+          },
+          "id": 0,
+          "kind": "mobile",
+        },
+        {
+          "asked": false,
+          "bar": {
+            "left": [
+              {
+                "kind": "number",
+                "weight": 9,
+              },
+              {
+                "kind": "picture",
+                "symbol": 1,
+              },
+            ],
+            "right": [
+              {
+                "kind": "picture",
+                "symbol": 0,
+              },
+              {
+                "kind": "number",
+                "weight": 13,
+              },
+            ],
+          },
+          "id": 1,
+          "kind": "mobile",
+        },
+      ],
+      "right": [
+        {
+          "kind": "number",
+          "weight": 16,
+        },
+        {
+          "kind": "number",
+          "weight": 30,
+        },
+      ],
+    },
+    "symbols": [
+      "🐷",
+      "🦊",
+    ],
+  },
+  {
+    "levelId": "knobler",
+    "question": {
+      "answer": 58,
+      "kind": "part",
+    },
+    "root": {
+      "left": [
+        {
+          "kind": "number",
+          "weight": 230,
+        },
+        {
+          "kind": "picture",
+          "symbol": 3,
+        },
+      ],
+      "right": [
+        {
+          "asked": false,
+          "bar": {
+            "left": [
+              {
+                "kind": "number",
+                "weight": 94,
+              },
+              {
+                "kind": "picture",
+                "symbol": 1,
+              },
+            ],
+            "right": [
+              {
+                "kind": "number",
+                "weight": 41,
+              },
+              {
+                "asked": true,
+                "bar": {
+                  "left": [
+                    {
+                      "kind": "number",
+                      "weight": 29,
+                    },
+                  ],
+                  "right": [
+                    {
+                      "kind": "picture",
+                      "symbol": 0,
+                    },
+                    {
+                      "kind": "number",
+                      "weight": 13,
+                    },
+                  ],
+                },
+                "id": 1,
+                "kind": "mobile",
+              },
+            ],
+          },
+          "id": 0,
+          "kind": "mobile",
+        },
+        {
+          "asked": false,
+          "bar": {
+            "left": [
+              {
+                "kind": "picture",
+                "symbol": 1,
+              },
+              {
+                "kind": "number",
+                "weight": 16,
+              },
+            ],
+            "right": [
+              {
+                "kind": "number",
+                "weight": 15,
+              },
+              {
+                "kind": "picture",
+                "symbol": 2,
+              },
+            ],
+          },
+          "id": 2,
+          "kind": "mobile",
+        },
+      ],
+    },
+    "symbols": [
+      "⛄",
+      "🔔",
+      "🧣",
+      "⭐",
+    ],
+  },
+]
+`;

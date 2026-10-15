@@ -70,4 +70,27 @@ describe('GameService notes', () => {
     expect(game.stats().waage.schwer.solved).toBe(1);
     expect(game.stats().gleichung.schwer.solved).toBe(0);
   });
+
+  it('gives number mobiles sentence hints and no notes', () => {
+    game.start('mobile', 'mittel', 3);
+
+    expect(game.notesEnabled()).toBe(false);
+    expect(game.maxHints()).toBeGreaterThanOrEqual(1);
+  });
+
+  it('solves a picture mobile by entering the answer', () => {
+    game.start('mobile', 'schwer', 3);
+    const puzzle = game.puzzle();
+    expect(game.notesEnabled()).toBe(true);
+
+    if (puzzle) {
+      for (const digit of String(puzzle.question.answer)) {
+        game.pressDigit(Number(digit));
+      }
+    }
+    game.submit();
+
+    expect(game.solved()).toBe(true);
+    expect(game.stats().mobile.schwer.solved).toBe(1);
+  });
 });

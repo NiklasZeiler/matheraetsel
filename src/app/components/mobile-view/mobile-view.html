@@ -1,0 +1,37 @@
+<div class="mobile">
+  <div class="arms">
+    @for (arm of arms(); track $index) {
+      @if ($last) {
+        <span class="fulcrum">
+          @if (badge()) {
+            <span class="badge" [class.asked]="asked()">{{ badge() }}</span>
+          }
+        </span>
+      }
+      <div class="arm">
+        @for (item of arm; track $index) {
+          <div class="hanger">
+            @if (item.bar) {
+              <app-mobile-view
+                [bar]="item.bar"
+                [symbols]="symbols()"
+                [showLabels]="showLabels()"
+                [label]="item.label"
+                [asked]="item.asked"
+              />
+            } @else {
+              <span class="string"></span>
+              @if (item.kind === 'picture') {
+                <span class="picture" aria-hidden="true">{{ item.text }}</span>
+              } @else {
+                <span class="weight" [class.unknown]="item.kind === 'unknown'">{{
+                  item.text
+                }}</span>
+              }
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

@@ -2,10 +2,13 @@ import { Component, DestroyRef, computed, effect, inject, input, untracked } fro
 import { Router, RouterLink } from '@angular/router';
 import { ExpressionView } from '../../components/expression-view/expression-view';
 import { Numpad } from '../../components/numpad/numpad';
+import { FitWidth } from '../../components/fit-width/fit-width';
+import { MobileView } from '../../components/mobile-view/mobile-view';
 import { PanView } from '../../components/pan-view/pan-view';
 import { ScaleView } from '../../components/scale-view/scale-view';
 import { formatDuration, hintsLabel } from '../../core/format';
 import { LEVELS } from '../../core/levels';
+import { barWeight, mobileLabel, subMobiles } from '../../core/mobile';
 import { PUZZLE_TYPE_LABEL, PuzzleType } from '../../core/puzzle';
 import { createSeed } from '../../core/random';
 import { decodeSeed, parseChallenge, parseLevel, puzzleRoute } from '../../core/share-link';
@@ -14,7 +17,7 @@ import { ShareService } from '../../services/share.service';
 
 @Component({
   selector: 'app-puzzle-page',
-  imports: [RouterLink, ExpressionView, Numpad, PanView, ScaleView],
+  imports: [RouterLink, ExpressionView, Numpad, PanView, ScaleView, MobileView, FitWidth],
   templateUrl: './puzzle-page.html',
   styleUrl: './puzzle-page.scss',
 })
@@ -46,6 +49,39 @@ export class PuzzlePage {
   protected readonly waage = computed(() => {
     const puzzle = this.game.puzzle();
     return puzzle?.kind === 'waage' ? puzzle : null;
+  });
+
+  protected readonly mobile = computed(() => {
+    const puzzle = this.game.puzzle();
+    return puzzle?.kind === 'mobile' ? puzzle : null;
+  });
+
+  protected readonly mobileUnknown = computed(() => {
+    const question = this.mobile()?.question;
+    return question?.kind === 'unknown' ? question : null;
+  });
+
+  protected readonly mobileSymbol = computed(() => {
+    const question = this.mobile()?.question;
+    return question?.kind === 'symbol' ? question : null;
+  });
+
+  protected readonly mobilePart = computed(() => {
+    const question = this.mobile()?.question;
+    return question?.kind === 'part' ? question : null;
+  });
+
+  /** Number mobiles: hints name a sub-mobile and give its total weight. */
+  protected readonly mobileHints = computed(() => {
+    const puzzle = this.mobile();
+    if (!puzzle || puzzle.mode !== 'numbers') {
+      return [];
+    }
+    const mobiles = subMobiles(puzzle.root);
+    return this.game.revealedSymbols().flatMap((id) => {
+      const found = mobiles.find((item) => item.id === id);
+      return found ? [{ label: mobileLabel(id), total: barWeight(found.bar, puzzle.values) }] : [];
+    });
   });
 
   protected readonly waageCount = computed(() => {

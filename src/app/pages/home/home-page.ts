@@ -5,6 +5,7 @@ import { LEVELS, LEVEL_IDS, LevelId } from '../../core/levels';
 import { createSeed } from '../../core/random';
 import { PUZZLE_TYPE_LABEL, PuzzleType } from '../../core/puzzle';
 import { puzzleRoute } from '../../core/share-link';
+import { MOBILE_LEVELS } from '../../core/mobile-levels';
 import { WAAGE_LEVELS } from '../../core/waage-levels';
 import { GameService } from '../../services/game.service';
 import { PersistenceService } from '../../services/persistence.service';
@@ -36,6 +37,15 @@ export class HomePage {
         id,
         label: LEVELS[id].label,
         description: WAAGE_LEVELS[id].description,
+      })),
+    },
+    {
+      type: 'mobile',
+      title: PUZZLE_TYPE_LABEL.mobile,
+      levels: LEVEL_IDS.map((id) => ({
+        id,
+        label: LEVELS[id].label,
+        description: MOBILE_LEVELS[id].description,
       })),
     },
   ];
