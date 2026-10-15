@@ -205,3 +205,15 @@
   font-size: 1.25rem;
   font-weight: 700;
 }
+
+.question-pan {
+  display: block;
+  max-width: 14rem;
+  margin: var(--space-2) auto 0;
+}
+
+.notes li.note {
+  display: inline-flex;
+  align-items: center;
+  cursor: default;
+}

@@ -4,6 +4,7 @@ import { PuzzlePage } from './pages/puzzle/puzzle-page';
 
 export const routes: Routes = [
   { path: '', component: HomePage },
-  { path: 'r/:level/:seed', component: PuzzlePage },
+  { path: 'r/:level/:seed', component: PuzzlePage, data: { type: 'gleichung' } },
+  { path: 'w/:level/:seed', component: PuzzlePage, data: { type: 'waage' } },
   { path: '**', redirectTo: '' },
 ];

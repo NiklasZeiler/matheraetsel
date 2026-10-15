@@ -1,6 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { formatDuration, hintsLabel } from '../core/format';
 import { LEVELS, LevelId } from '../core/levels';
+import { PUZZLE_TYPE_LABEL, PuzzleType } from '../core/puzzle';
 import { ChallengeResult, puzzleUrl } from '../core/share-link';
 
 @Injectable({ providedIn: 'root' })
@@ -8,10 +9,15 @@ export class ShareService {
   /** Short feedback text shown after copying; cleared automatically. */
   readonly notice = signal('');
 
-  async sharePuzzle(level: LevelId, seed: number, result?: ChallengeResult): Promise<void> {
+  async sharePuzzle(
+    type: PuzzleType,
+    level: LevelId,
+    seed: number,
+    result?: ChallengeResult,
+  ): Promise<void> {
     const baseUrl = window.location.href.split('#')[0];
-    const url = puzzleUrl(baseUrl, level, seed, result);
-    const label = LEVELS[level].label;
+    const url = puzzleUrl(baseUrl, type, level, seed, result);
+    const label = `${PUZZLE_TYPE_LABEL[type]}, ${LEVELS[level].label}`;
     const text = result
       ? `Ich habe das Matherätsel (${label}) in ${formatDuration(result.seconds)} ${hintsLabel(result.hints)} gelöst. Kannst du das schlagen?`
       : `Kannst du mein Matherätsel (${label}) lösen?`;

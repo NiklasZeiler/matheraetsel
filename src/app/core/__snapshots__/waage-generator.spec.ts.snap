@@ -1,0 +1,289 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`generateWaage > keeps existing links stable (golden puzzle) 1`] = `
+[
+  {
+    "levelId": "leicht",
+    "question": {
+      "answer": 9,
+      "kind": "count",
+      "pan": {
+        "pictures": [
+          0,
+          0,
+          0,
+        ],
+        "weights": [],
+      },
+      "unit": 1,
+    },
+    "scales": [
+      {
+        "left": {
+          "pictures": [
+            1,
+            1,
+            1,
+          ],
+          "weights": [],
+        },
+        "right": {
+          "pictures": [
+            0,
+          ],
+          "weights": [],
+        },
+      },
+    ],
+    "symbols": [
+      "👾",
+      "🐲",
+    ],
+  },
+  {
+    "levelId": "mittel",
+    "question": {
+      "answer": 8,
+      "kind": "count",
+      "pan": {
+        "pictures": [
+          0,
+          0,
+        ],
+        "weights": [],
+      },
+      "unit": 2,
+    },
+    "scales": [
+      {
+        "left": {
+          "pictures": [
+            1,
+            1,
+            1,
+            1,
+          ],
+          "weights": [],
+        },
+        "right": {
+          "pictures": [
+            0,
+            0,
+          ],
+          "weights": [],
+        },
+      },
+      {
+        "left": {
+          "pictures": [
+            1,
+          ],
+          "weights": [],
+        },
+        "right": {
+          "pictures": [
+            2,
+            2,
+          ],
+          "weights": [],
+        },
+      },
+    ],
+    "symbols": [
+      "👾",
+      "🐲",
+      "👽",
+    ],
+  },
+  {
+    "levelId": "schwer",
+    "question": {
+      "answer": 13,
+      "kind": "symbol",
+      "symbol": 3,
+    },
+    "scales": [
+      {
+        "left": {
+          "pictures": [
+            0,
+            0,
+            0,
+          ],
+          "weights": [],
+        },
+        "right": {
+          "pictures": [],
+          "weights": [
+            21,
+          ],
+        },
+      },
+      {
+        "left": {
+          "pictures": [
+            1,
+          ],
+          "weights": [],
+        },
+        "right": {
+          "pictures": [
+            0,
+          ],
+          "weights": [
+            8,
+          ],
+        },
+      },
+      {
+        "left": {
+          "pictures": [
+            2,
+            2,
+            1,
+            1,
+          ],
+          "weights": [],
+        },
+        "right": {
+          "pictures": [
+            2,
+          ],
+          "weights": [
+            34,
+          ],
+        },
+      },
+      {
+        "left": {
+          "pictures": [
+            3,
+            2,
+          ],
+          "weights": [],
+        },
+        "right": {
+          "pictures": [],
+          "weights": [
+            17,
+          ],
+        },
+      },
+    ],
+    "symbols": [
+      "👾",
+      "🐲",
+      "👽",
+      "🐙",
+    ],
+  },
+  {
+    "levelId": "knobler",
+    "question": {
+      "answer": 105,
+      "kind": "expression",
+      "pan": {
+        "pictures": [
+          1,
+          3,
+          2,
+          4,
+        ],
+        "weights": [],
+      },
+    },
+    "scales": [
+      {
+        "left": {
+          "pictures": [],
+          "weights": [
+            74,
+          ],
+        },
+        "right": {
+          "pictures": [
+            0,
+            0,
+          ],
+          "weights": [],
+        },
+      },
+      {
+        "left": {
+          "pictures": [],
+          "weights": [
+            94,
+          ],
+        },
+        "right": {
+          "pictures": [
+            1,
+            0,
+          ],
+          "weights": [],
+        },
+      },
+      {
+        "left": {
+          "pictures": [
+            0,
+          ],
+          "weights": [
+            83,
+          ],
+        },
+        "right": {
+          "pictures": [
+            2,
+            1,
+            1,
+          ],
+          "weights": [],
+        },
+      },
+      {
+        "left": {
+          "pictures": [
+            2,
+          ],
+          "weights": [
+            10,
+          ],
+        },
+        "right": {
+          "pictures": [
+            3,
+          ],
+          "weights": [],
+        },
+      },
+      {
+        "left": {
+          "pictures": [
+            3,
+            3,
+            2,
+          ],
+          "weights": [
+            14,
+          ],
+        },
+        "right": {
+          "pictures": [
+            4,
+            4,
+          ],
+          "weights": [],
+        },
+      },
+    ],
+    "symbols": [
+      "👾",
+      "🐲",
+      "👽",
+      "🐙",
+      "🤖",
+    ],
+  },
+]
+`;

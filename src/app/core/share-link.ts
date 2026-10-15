@@ -1,4 +1,5 @@
 import { LevelId, isLevelId } from './levels';
+import { PuzzleType } from './puzzle';
 import { MAX_SEED } from './random';
 
 export interface ChallengeResult {
@@ -32,17 +33,21 @@ export function parseChallenge(
   return { seconds: Number(seconds), hints: Number(hints) };
 }
 
+/** Route prefix per puzzle type; "r" must stay for the equation links that already exist. */
+const ROUTE_PREFIX: Record<PuzzleType, string> = { gleichung: 'r', waage: 'w' };
+
 /** Relative route for the router (hash routing keeps this working on any static host). */
-export function puzzleRoute(level: LevelId, seed: number): string[] {
-  return ['/r', level, encodeSeed(seed)];
+export function puzzleRoute(type: PuzzleType, level: LevelId, seed: number): string[] {
+  return [`/${ROUTE_PREFIX[type]}`, level, encodeSeed(seed)];
 }
 
 export function puzzleUrl(
   appBaseUrl: string,
+  type: PuzzleType,
   level: LevelId,
   seed: number,
   result?: ChallengeResult,
 ): string {
   const query = result ? `?t=${result.seconds}&h=${result.hints}` : '';
-  return `${appBaseUrl}#/r/${level}/${encodeSeed(seed)}${query}`;
+  return `${appBaseUrl}#/${ROUTE_PREFIX[type]}/${level}/${encodeSeed(seed)}${query}`;
 }

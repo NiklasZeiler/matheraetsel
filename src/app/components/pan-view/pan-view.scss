@@ -1,0 +1,30 @@
+.pan {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 0.1rem 0.15rem;
+  min-height: 2.6rem;
+  padding: 0.2rem 0.3rem 0.1rem;
+  border-bottom: 4px solid var(--color-text-muted);
+  border-radius: 0 0 var(--radius-small) var(--radius-small);
+}
+
+.picture {
+  font-size: 1.6rem;
+  line-height: 1.2;
+}
+
+.weight {
+  display: inline-grid;
+  place-items: center;
+  min-width: 2rem;
+  height: 2rem;
+  padding: 0 0.35rem;
+  border: 2px solid var(--color-accent);
+  border-radius: var(--radius-small);
+  background: var(--color-accent-soft);
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}

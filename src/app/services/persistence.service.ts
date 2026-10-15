@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { LEVEL_IDS, LevelId, isLevelId } from '../core/levels';
+import { PuzzleType, isPuzzleType } from '../core/puzzle';
 
 export interface LevelStats {
   solved: number;
@@ -10,6 +11,7 @@ export interface LevelStats {
 export type Stats = Record<LevelId, LevelStats>;
 
 export interface Session {
+  type: PuzzleType;
   level: LevelId;
   seed: number;
   elapsedSeconds: number;
@@ -19,7 +21,11 @@ export interface Session {
   notes: Record<number, string>;
 }
 
-const STATS_KEY = 'raetsel.stats.v1';
+/** The equation key predates the waage puzzle and is kept so existing stats survive. */
+const STATS_KEYS: Record<PuzzleType, string> = {
+  gleichung: 'raetsel.stats.v1',
+  waage: 'raetsel.stats.waage.v1',
+};
 const SESSION_KEY = 'raetsel.session.v1';
 
 function emptyStats(): Stats {
@@ -31,9 +37,9 @@ function emptyStats(): Stats {
 /** Wraps localStorage; storage may be unavailable (private mode), so every access is guarded. */
 @Injectable({ providedIn: 'root' })
 export class PersistenceService {
-  loadStats(): Stats {
+  loadStats(type: PuzzleType): Stats {
     const stats = emptyStats();
-    const stored = this.read(STATS_KEY);
+    const stored = this.read(STATS_KEYS[type]);
     if (stored && typeof stored === 'object') {
       for (const level of LEVEL_IDS) {
         const entry = (stored as Record<string, Partial<LevelStats>>)[level];
@@ -49,15 +55,15 @@ export class PersistenceService {
     return stats;
   }
 
-  recordSolved(level: LevelId, seconds: number, hints: number): Stats {
-    const stats = this.loadStats();
+  recordSolved(type: PuzzleType, level: LevelId, seconds: number, hints: number): Stats {
+    const stats = this.loadStats(type);
     const entry = stats[level];
     stats[level] = {
       solved: entry.solved + 1,
       totalHints: entry.totalHints + hints,
       bestSeconds: entry.bestSeconds === null ? seconds : Math.min(entry.bestSeconds, seconds),
     };
-    this.write(STATS_KEY, stats);
+    this.write(STATS_KEYS[type], stats);
     return stats;
   }
 
@@ -71,9 +77,21 @@ export class PersistenceService {
       typeof stored.hintsUsed === 'number' &&
       typeof stored.solved === 'boolean'
     ) {
-      return { ...(stored as Session), notes: this.cleanNotes(stored.notes) };
+      return {
+        type: isPuzzleType(stored.type) ? stored.type : 'gleichung',
+        level: stored.level,
+        seed: stored.seed,
+        elapsedSeconds: stored.elapsedSeconds,
+        hintsUsed: stored.hintsUsed,
+        solved: stored.solved,
+        notes: this.cleanNotes(stored.notes),
+      };
     }
     return null;
+  }
+
+  saveSession(session: Session): void {
+    this.write(SESSION_KEY, session);
   }
 
   private cleanNotes(value: unknown): Record<number, string> {
@@ -86,10 +104,6 @@ export class PersistenceService {
       }
     }
     return notes;
-  }
-
-  saveSession(session: Session): void {
-    this.write(SESSION_KEY, session);
   }
 
   private read(key: string): unknown {

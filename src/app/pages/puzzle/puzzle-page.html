@@ -15,63 +15,106 @@
   }
 
   @if (game.puzzle(); as puzzle) {
-    <section aria-label="Gleichungen">
-      <ol class="equations">
-        @for (equation of puzzle.equations; track $index) {
-          <li>
-            <app-expression-view
-              [expression]="equation.expression"
-              [symbols]="puzzle.symbols"
-              [result]="equation.result"
-              [groupRepeats]="groupRepeats()"
-            />
-          </li>
-        }
-      </ol>
-    </section>
+    @if (gleichung(); as equations) {
+      <section aria-label="Gleichungen">
+        <ol class="equations">
+          @for (equation of equations.equations; track $index) {
+            <li>
+              <app-expression-view
+                [expression]="equation.expression"
+                [symbols]="puzzle.symbols"
+                [result]="equation.result"
+                [groupRepeats]="groupRepeats()"
+              />
+            </li>
+          }
+        </ol>
+      </section>
+    }
 
-    <section aria-labelledby="notes-heading">
-      <h2 id="notes-heading" class="section-title">Meine Notizen</h2>
-      <ul class="notes">
-        @for (item of noteItems(); track item.symbol) {
-          <li>
-            <button
-              type="button"
-              class="note"
-              [class.active]="game.target() === item.symbol"
-              [class.revealed]="item.revealed"
-              [disabled]="item.revealed || game.solved()"
-              [attr.aria-pressed]="game.target() === item.symbol"
-              (click)="game.selectTarget(item.symbol)"
-            >
-              <span aria-hidden="true">{{ item.picture }}</span> = {{ item.text || '?' }}
-            </button>
-          </li>
-        }
-      </ul>
-    </section>
+    @if (waage(); as scales) {
+      <section aria-label="Waagen">
+        <ol class="equations">
+          @for (scale of scales.scales; track $index) {
+            <li><app-scale-view [scale]="scale" [symbols]="puzzle.symbols" /></li>
+          }
+        </ol>
+      </section>
+    }
+
+    @if (game.notesEnabled()) {
+      <section aria-labelledby="notes-heading">
+        <h2 id="notes-heading" class="section-title">Meine Notizen</h2>
+        <ul class="notes">
+          @for (item of noteItems(); track item.symbol) {
+            <li>
+              <button
+                type="button"
+                class="note"
+                [class.active]="game.target() === item.symbol"
+                [class.revealed]="item.revealed"
+                [disabled]="item.revealed || game.solved()"
+                [attr.aria-pressed]="game.target() === item.symbol"
+                (click)="game.selectTarget(item.symbol)"
+              >
+                <span aria-hidden="true">{{ item.picture }}</span> = {{ item.text || '?' }}
+              </button>
+            </li>
+          }
+        </ul>
+      </section>
+    } @else if (ratioHints().length > 0) {
+      <section aria-label="Hinweise">
+        <ul class="notes">
+          @for (hint of ratioHints(); track hint.picture) {
+            <li class="note revealed" aria-label="Hinweis">
+              <span aria-hidden="true">{{ hint.picture }} = {{ hint.equivalent.join(' ') }}</span>
+            </li>
+          }
+        </ul>
+      </section>
+    }
 
     <section class="question" aria-labelledby="question-heading">
       <h2 id="question-heading" class="section-title">Gesucht</h2>
-      @if (puzzle.question.kind === 'symbol') {
+      @if (gleichung(); as equations) {
+        @if (equations.question.kind === 'symbol') {
+          <p class="question-text">
+            Welche Zahl steckt hinter
+            <span class="picture">{{ puzzle.symbols[equations.question.symbol] }}</span
+            >?
+          </p>
+        } @else {
+          <app-expression-view
+            [expression]="equations.question.expression"
+            [symbols]="puzzle.symbols"
+            [groupRepeats]="groupRepeats()"
+          />
+        }
+      }
+      @if (waageCount(); as question) {
         <p class="question-text">
-          Welche Zahl steckt hinter <span class="picture">{{ puzzle.symbols[puzzle.question.symbol] }}</span>?
+          Wie viele <span class="picture">{{ puzzle.symbols[question.unit] }}</span> wiegen so viel
+          wie
         </p>
-      } @else {
-        <app-expression-view
-          [expression]="puzzle.question.expression"
-          [symbols]="puzzle.symbols"
-          [groupRepeats]="groupRepeats()"
-        />
+        <app-pan-view class="question-pan" [pan]="question.pan" [symbols]="puzzle.symbols" />
+      }
+      @if (waageSymbol(); as question) {
+        <p class="question-text">
+          Wie viel wiegt <span class="picture">{{ puzzle.symbols[question.symbol] }}</span
+          >?
+        </p>
+      }
+      @if (waageExpression(); as question) {
+        <p class="question-text">Wie viel wiegen diese Bilder zusammen?</p>
+        <app-pan-view class="question-pan" [pan]="question.pan" [symbols]="puzzle.symbols" />
       }
     </section>
 
     @if (game.solved()) {
       <section class="solved" aria-live="polite">
         <p class="solved-title">Richtig! 🎉 Die Lösung ist {{ puzzle.question.answer }}.</p>
-        <p>
-          {{ formatDuration(game.elapsedSeconds()) }} {{ hintsLabel(game.hintsUsed()) }}
-        </p>
+        <p>{{ formatDuration(game.elapsedSeconds()) }} {{ hintsLabel(game.hintsUsed()) }}</p>
         @if (challengeVerdict()) {
           <p class="verdict">{{ challengeVerdict() }}</p>
         }

@@ -1,0 +1,8 @@
+<span class="pan" role="img" [attr.aria-label]="label()">
+  @for (picture of pictures(); track $index) {
+    <span class="picture" aria-hidden="true">{{ picture }}</span>
+  }
+  @for (weight of pan().weights; track $index) {
+    <span class="weight" aria-hidden="true">{{ weight }}</span>
+  }
+</span>

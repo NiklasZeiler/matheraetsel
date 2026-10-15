@@ -42,7 +42,8 @@ export function solve(
 
   while (pending.length > 0) {
     const nextIndex = pending.findIndex(
-      (equation) => distinctSymbols(equation.expression).filter((s) => known[s] === undefined).length <= 1,
+      (equation) =>
+        distinctSymbols(equation.expression).filter((s) => known[s] === undefined).length <= 1,
     );
     if (nextIndex === -1) {
       return null;
@@ -57,7 +58,13 @@ export function solve(
       continue;
     }
 
-    const candidates = candidateValues(equation.expression, equation.result, unknown[0], known, limit);
+    const candidates = candidateValues(
+      equation.expression,
+      equation.result,
+      unknown[0],
+      known,
+      limit,
+    );
     if (candidates.length !== 1) {
       return null;
     }

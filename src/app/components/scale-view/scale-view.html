@@ -1,0 +1,5 @@
+<div class="scale" role="group" aria-label="Waage im Gleichgewicht">
+  <app-pan-view [pan]="scale().left" [symbols]="symbols()" />
+  <span class="equals" aria-hidden="true">=</span>
+  <app-pan-view [pan]="scale().right" [symbols]="symbols()" />
+</div>

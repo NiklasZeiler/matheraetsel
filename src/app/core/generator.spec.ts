@@ -59,7 +59,9 @@ describe('generatePuzzle', () => {
     for (const levelId of ['schwer', 'knobler'] as const) {
       const withGroup = SEEDS.filter((seed) =>
         generatePuzzle(levelId, seed).equations.some((equation) =>
-          groupRepeatedSymbols(toTokens(equation.expression)).some((token) => token.kind === 'group'),
+          groupRepeatedSymbols(toTokens(equation.expression)).some(
+            (token) => token.kind === 'group',
+          ),
         ),
       );
       expect(withGroup.length / SEEDS.length).toBeGreaterThan(0.8);
@@ -69,7 +71,8 @@ describe('generatePuzzle', () => {
   it('keeps existing links stable (golden puzzle)', () => {
     const puzzle = generatePuzzle('leicht', 1);
     const rendered = puzzle.equations.map(
-      (equation) => `${describeExpression(equation.expression, puzzle.symbols)} = ${equation.result}`,
+      (equation) =>
+        `${describeExpression(equation.expression, puzzle.symbols)} = ${equation.result}`,
     );
     expect({ symbols: puzzle.symbols, values: puzzle.values, rendered }).toMatchSnapshot();
   });

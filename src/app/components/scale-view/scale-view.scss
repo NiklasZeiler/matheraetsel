@@ -1,0 +1,13 @@
+.scale {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: end;
+  gap: var(--space-2);
+}
+
+.equals {
+  padding-bottom: 0.3rem;
+  color: var(--color-text-muted);
+  font-size: 1.25rem;
+  font-weight: 700;
+}

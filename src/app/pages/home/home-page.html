@@ -10,25 +10,27 @@
     </a>
   }
 
-  <section aria-labelledby="levels-heading">
-    <h2 id="levels-heading">Stufe wählen</h2>
-    <ul class="levels">
-      @for (level of levels; track level.id) {
-        <li>
-          <button type="button" class="level" (click)="start(level.id)">
-            <span class="level-name">{{ level.label }}</span>
-            <span class="level-description">{{ level.description }}</span>
-            <span class="level-stats">
-              @if (game.stats()[level.id].solved > 0) {
-                {{ game.stats()[level.id].solved }} gelöst · Bestzeit
-                {{ formatDuration(game.stats()[level.id].bestSeconds ?? 0) }}
-              } @else {
-                Noch nicht gelöst
-              }
-            </span>
-          </button>
-        </li>
-      }
-    </ul>
-  </section>
+  @for (section of sections; track section.type) {
+    <section [attr.aria-labelledby]="'heading-' + section.type">
+      <h2 [id]="'heading-' + section.type">{{ section.title }}</h2>
+      <ul class="levels">
+        @for (level of section.levels; track level.id) {
+          <li>
+            <button type="button" class="level" (click)="start(section.type, level.id)">
+              <span class="level-name">{{ level.label }}</span>
+              <span class="level-description">{{ level.description }}</span>
+              <span class="level-stats">
+                @if (game.stats()[section.type][level.id].solved > 0) {
+                  {{ game.stats()[section.type][level.id].solved }} gelöst · Bestzeit
+                  {{ formatDuration(game.stats()[section.type][level.id].bestSeconds ?? 0) }}
+                } @else {
+                  Noch nicht gelöst
+                }
+              </span>
+            </button>
+          </li>
+        }
+      </ul>
+    </section>
+  }
 </main>

@@ -59,6 +59,7 @@ function tryGenerate(level: LevelConfig, seed: number, random: Random): Puzzle |
   }
 
   return {
+    kind: 'gleichung',
     level: level.id,
     seed,
     themeId: theme.id,
@@ -99,7 +100,11 @@ function randomTree(
 }
 
 /** Builds a random expression; on grouping levels it often centres it on a repeated picture. */
-function buildExpression(random: Random, level: LevelConfig, leaves: readonly number[]): Expression {
+function buildExpression(
+  random: Random,
+  level: LevelConfig,
+  leaves: readonly number[],
+): Expression {
   const repeat = level.groupRepeats && random() < REPEAT_CHANCE;
   let ordered = shuffled(random, leaves);
   if (repeat) {
@@ -162,7 +167,11 @@ function buildEquation(
   return null;
 }
 
-function buildQuestion(random: Random, level: LevelConfig, values: readonly number[]): Question | null {
+function buildQuestion(
+  random: Random,
+  level: LevelConfig,
+  values: readonly number[],
+): Question | null {
   const last = values.length - 1;
   if (level.question === 'symbol') {
     return { kind: 'symbol', symbol: last, answer: values[last] };
@@ -174,7 +183,12 @@ function buildQuestion(random: Random, level: LevelConfig, values: readonly numb
   );
   for (let attempt = 0; attempt < MAX_EXPRESSION_TRIES; attempt++) {
     const extraCount = randomInt(random, 0, 1);
-    const leaves = [last, others[0], others[1], ...Array.from({ length: extraCount }, () => pickOne(random, others))];
+    const leaves = [
+      last,
+      others[0],
+      others[1],
+      ...Array.from({ length: extraCount }, () => pickOne(random, others)),
+    ];
     const expression = buildExpression(random, level, leaves);
     if (isUnsuitable(expression, level)) {
       continue;

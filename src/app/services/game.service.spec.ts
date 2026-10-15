@@ -7,7 +7,7 @@ describe('GameService notes', () => {
   beforeEach(() => {
     localStorage.clear();
     game = TestBed.inject(GameService);
-    game.start('leicht', 1);
+    game.start('gleichung', 'leicht', 1);
   });
 
   afterEach(() => game.stop());
@@ -42,8 +42,32 @@ describe('GameService notes', () => {
     game.pressDigit(7);
     game.stop();
 
-    game.start('leicht', 1);
+    game.start('gleichung', 'leicht', 1);
 
     expect(game.notes()[0]).toBe('7');
+  });
+
+  it('offers no notes and sentence hints in ratio waage puzzles', () => {
+    game.start('waage', 'leicht', 1);
+
+    expect(game.notesEnabled()).toBe(false);
+    expect(game.maxHints()).toBe(1);
+  });
+
+  it('keeps notes for numbered waage puzzles and tracks stats per type', () => {
+    game.start('waage', 'schwer', 1);
+    expect(game.notesEnabled()).toBe(true);
+
+    const puzzle = game.puzzle();
+    if (puzzle) {
+      for (const digit of String(puzzle.question.answer)) {
+        game.pressDigit(Number(digit));
+      }
+    }
+    game.submit();
+
+    expect(game.solved()).toBe(true);
+    expect(game.stats().waage.schwer.solved).toBe(1);
+    expect(game.stats().gleichung.schwer.solved).toBe(0);
   });
 });

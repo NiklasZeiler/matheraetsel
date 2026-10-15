@@ -2,8 +2,11 @@ import { Component, DestroyRef, computed, effect, inject, input, untracked } fro
 import { Router, RouterLink } from '@angular/router';
 import { ExpressionView } from '../../components/expression-view/expression-view';
 import { Numpad } from '../../components/numpad/numpad';
+import { PanView } from '../../components/pan-view/pan-view';
+import { ScaleView } from '../../components/scale-view/scale-view';
 import { formatDuration, hintsLabel } from '../../core/format';
 import { LEVELS } from '../../core/levels';
+import { PUZZLE_TYPE_LABEL, PuzzleType } from '../../core/puzzle';
 import { createSeed } from '../../core/random';
 import { decodeSeed, parseChallenge, parseLevel, puzzleRoute } from '../../core/share-link';
 import { GameService } from '../../services/game.service';
@@ -11,7 +14,7 @@ import { ShareService } from '../../services/share.service';
 
 @Component({
   selector: 'app-puzzle-page',
-  imports: [RouterLink, ExpressionView, Numpad],
+  imports: [RouterLink, ExpressionView, Numpad, PanView, ScaleView],
   templateUrl: './puzzle-page.html',
   styleUrl: './puzzle-page.scss',
 })
@@ -20,7 +23,8 @@ export class PuzzlePage {
   protected readonly shareService = inject(ShareService);
   private readonly router = inject(Router);
 
-  // Bound from the route (:level, :seed) and the query string (?t=…&h=…).
+  // Bound from the route data, params (:level, :seed) and the query string (?t=…&h=…).
+  readonly type = input<PuzzleType>('gleichung');
   readonly level = input<string>();
   readonly seed = input<string>();
   readonly t = input<string>();
@@ -31,7 +35,46 @@ export class PuzzlePage {
 
   protected readonly levelLabel = computed(() => {
     const level = parseLevel(this.level());
-    return level ? LEVELS[level].label : '';
+    return level ? `${PUZZLE_TYPE_LABEL[this.type()]} · ${LEVELS[level].label}` : '';
+  });
+
+  protected readonly gleichung = computed(() => {
+    const puzzle = this.game.puzzle();
+    return puzzle?.kind === 'gleichung' ? puzzle : null;
+  });
+
+  protected readonly waage = computed(() => {
+    const puzzle = this.game.puzzle();
+    return puzzle?.kind === 'waage' ? puzzle : null;
+  });
+
+  protected readonly waageCount = computed(() => {
+    const question = this.waage()?.question;
+    return question?.kind === 'count' ? question : null;
+  });
+
+  protected readonly waageSymbol = computed(() => {
+    const question = this.waage()?.question;
+    return question?.kind === 'symbol' ? question : null;
+  });
+
+  protected readonly waageExpression = computed(() => {
+    const question = this.waage()?.question;
+    return question?.kind === 'expression' ? question : null;
+  });
+
+  /** Ratio waage hints are sentences like "🍓 wiegt so viel wie 🍋 🍋 🍋". */
+  protected readonly ratioHints = computed(() => {
+    const puzzle = this.waage();
+    if (!puzzle || puzzle.unit === null) {
+      return [];
+    }
+    const unitPicture = puzzle.symbols[puzzle.unit];
+    const unitValue = puzzle.values[puzzle.unit];
+    return this.game.revealedSymbols().map((symbol) => ({
+      picture: puzzle.symbols[symbol],
+      equivalent: Array.from({ length: puzzle.values[symbol] / unitValue }, () => unitPicture),
+    }));
   });
 
   protected readonly groupRepeats = computed(() => {
@@ -76,13 +119,14 @@ export class PuzzlePage {
 
   constructor() {
     effect(() => {
+      const type = this.type();
       const level = parseLevel(this.level());
       const seed = decodeSeed(this.seed());
       untracked(() => {
         if (level === null || seed === null) {
           void this.router.navigate(['/']);
         } else {
-          this.game.start(level, seed);
+          this.game.start(type, level, seed);
         }
       });
     });
@@ -92,21 +136,21 @@ export class PuzzlePage {
   protected newPuzzle(): void {
     const puzzle = this.game.puzzle();
     if (puzzle) {
-      void this.router.navigate(puzzleRoute(puzzle.level, createSeed()));
+      void this.router.navigate(puzzleRoute(puzzle.kind, puzzle.level, createSeed()));
     }
   }
 
   protected sharePuzzle(): void {
     const puzzle = this.game.puzzle();
     if (puzzle) {
-      void this.shareService.sharePuzzle(puzzle.level, puzzle.seed);
+      void this.shareService.sharePuzzle(puzzle.kind, puzzle.level, puzzle.seed);
     }
   }
 
   protected shareResult(): void {
     const puzzle = this.game.puzzle();
     if (puzzle) {
-      void this.shareService.sharePuzzle(puzzle.level, puzzle.seed, {
+      void this.shareService.sharePuzzle(puzzle.kind, puzzle.level, puzzle.seed, {
         seconds: this.game.elapsedSeconds(),
         hints: this.game.hintsUsed(),
       });

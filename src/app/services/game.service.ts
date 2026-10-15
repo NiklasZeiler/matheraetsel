@@ -1,7 +1,8 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { generatePuzzle } from '../core/generator';
+import { generateAny } from '../core/generate-any';
+import { maxHints, notesEnabled } from '../core/hints';
 import { LevelId } from '../core/levels';
-import { Puzzle } from '../core/puzzle';
+import { AnyPuzzle, PuzzleType } from '../core/puzzle';
 import { PersistenceService, Stats } from './persistence.service';
 
 const MAX_INPUT_LENGTH = 4;
@@ -14,7 +15,7 @@ export class GameService {
   private readonly persistence = inject(PersistenceService);
   private timerId: ReturnType<typeof setInterval> | null = null;
 
-  readonly puzzle = signal<Puzzle | null>(null);
+  readonly puzzle = signal<AnyPuzzle | null>(null);
   readonly input = signal('');
   readonly notes = signal<Record<number, string>>({});
   readonly target = signal<InputTarget>('answer');
@@ -23,15 +24,19 @@ export class GameService {
   readonly solved = signal(false);
   /** Increments on every wrong answer so the view can replay its shake animation. */
   readonly wrongAnswers = signal(0);
-  readonly stats = signal<Stats>(this.persistence.loadStats());
+  readonly stats = signal<Record<PuzzleType, Stats>>({
+    gleichung: this.persistence.loadStats('gleichung'),
+    waage: this.persistence.loadStats('waage'),
+  });
 
   readonly maxHints = computed(() => {
     const puzzle = this.puzzle();
-    if (!puzzle) {
-      return 0;
-    }
-    // For "what is one X worth" the last symbol is the answer, so it is never revealed.
-    return puzzle.question.kind === 'symbol' ? puzzle.symbols.length - 1 : puzzle.symbols.length;
+    return puzzle ? maxHints(puzzle) : 0;
+  });
+
+  readonly notesEnabled = computed(() => {
+    const puzzle = this.puzzle();
+    return puzzle ? notesEnabled(puzzle) : false;
   });
 
   readonly revealedSymbols = computed(() =>
@@ -40,11 +45,12 @@ export class GameService {
 
   readonly canHint = computed(() => !this.solved() && this.hintsUsed() < this.maxHints());
 
-  start(level: LevelId, seed: number): void {
+  start(type: PuzzleType, level: LevelId, seed: number): void {
     const session = this.persistence.loadSession();
-    const resumed = session?.level === level && session.seed === seed ? session : null;
+    const resumed =
+      session?.type === type && session.level === level && session.seed === seed ? session : null;
 
-    this.puzzle.set(generatePuzzle(level, seed));
+    this.puzzle.set(generateAny(type, level, seed));
     this.input.set('');
     this.notes.set(resumed?.notes ?? {});
     this.target.set('answer');
@@ -76,7 +82,11 @@ export class GameService {
       return;
     }
     this.editTarget((current) =>
-      current.length >= MAX_INPUT_LENGTH ? current : current === '0' ? String(digit) : current + digit,
+      current.length >= MAX_INPUT_LENGTH
+        ? current
+        : current === '0'
+          ? String(digit)
+          : current + digit,
     );
   }
 
@@ -98,9 +108,14 @@ export class GameService {
     }
     if (Number(this.input()) === puzzle.question.answer) {
       this.solved.set(true);
-      this.stats.set(
-        this.persistence.recordSolved(puzzle.level, this.elapsedSeconds(), this.hintsUsed()),
+      const type: PuzzleType = puzzle.kind;
+      const updated = this.persistence.recordSolved(
+        type,
+        puzzle.level,
+        this.elapsedSeconds(),
+        this.hintsUsed(),
       );
+      this.stats.update((all) => ({ ...all, [type]: updated }));
       this.saveSession();
     } else {
       this.wrongAnswers.update((count) => count + 1);
@@ -144,6 +159,7 @@ export class GameService {
     const puzzle = this.puzzle();
     if (puzzle) {
       this.persistence.saveSession({
+        type: puzzle.kind,
         level: puzzle.level,
         seed: puzzle.seed,
         elapsedSeconds: this.elapsedSeconds(),

@@ -1,5 +1,17 @@
 import { Expression } from './expression';
 import { LevelId } from './levels';
+import { WaagePuzzle } from './waage';
+
+export type PuzzleType = 'gleichung' | 'waage';
+
+export const PUZZLE_TYPE_LABEL: Record<PuzzleType, string> = {
+  gleichung: 'Gleichungen',
+  waage: 'Waage',
+};
+
+export function isPuzzleType(value: unknown): value is PuzzleType {
+  return value === 'gleichung' || value === 'waage';
+}
 
 export interface Equation {
   expression: Expression;
@@ -11,6 +23,7 @@ export type Question =
   | { kind: 'expression'; expression: Expression; answer: number };
 
 export interface Puzzle {
+  kind: 'gleichung';
   level: LevelId;
   seed: number;
   themeId: string;
@@ -23,3 +36,5 @@ export interface Puzzle {
   /** Symbol indices in the order they can be deduced; hints reveal them in this order. */
   hintOrder: number[];
 }
+
+export type AnyPuzzle = Puzzle | WaagePuzzle;

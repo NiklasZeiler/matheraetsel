@@ -93,7 +93,9 @@ function needsParentheses(child: Expression, parent: Operator, side: 'left' | 'r
   }
   const childPrecedence = PRECEDENCE[child.operator];
   const parentPrecedence = PRECEDENCE[parent];
-  return childPrecedence < parentPrecedence || (side === 'right' && childPrecedence === parentPrecedence);
+  return (
+    childPrecedence < parentPrecedence || (side === 'right' && childPrecedence === parentPrecedence)
+  );
 }
 
 function wrapped(expression: Expression, parent: Operator, side: 'left' | 'right'): Token[] {
@@ -133,7 +135,9 @@ export function groupRepeatedSymbols(tokens: readonly Token[]): GroupedToken[] {
       const before = tokens[index - 1];
       const after = tokens[last + 1];
       const startsTerm =
-        !before || before.kind === 'open' || (before.kind === 'operator' && before.operator === '+');
+        !before ||
+        before.kind === 'open' ||
+        (before.kind === 'operator' && before.operator === '+');
       const endsTerm =
         !after ||
         after.kind === 'close' ||
