@@ -1,0 +1,100 @@
+<main class="puzzle">
+  <header class="bar">
+    <a class="back" routerLink="/" aria-label="Zur Startseite">←</a>
+    <h1>{{ levelLabel() }}</h1>
+    <p class="timer" aria-label="Zeit">{{ formatDuration(game.elapsedSeconds()) }}</p>
+  </header>
+
+  @if (challenge(); as challenge) {
+    <p class="challenge">
+      Vorgabe: {{ formatDuration(challenge.seconds) }} {{ hintsLabel(challenge.hints) }}.
+      @if (!game.solved()) {
+        Kannst du das schlagen?
+      }
+    </p>
+  }
+
+  @if (game.puzzle(); as puzzle) {
+    <section aria-label="Gleichungen">
+      <ol class="equations">
+        @for (equation of puzzle.equations; track $index) {
+          <li>
+            <app-expression-view
+              [expression]="equation.expression"
+              [symbols]="puzzle.symbols"
+              [result]="equation.result"
+            />
+          </li>
+        }
+      </ol>
+    </section>
+
+    @if (revealed().length > 0) {
+      <section aria-label="Verratene Werte">
+        <ul class="revealed">
+          @for (item of revealed(); track item.picture) {
+            <li><span aria-hidden="true">{{ item.picture }}</span> = {{ item.value }}</li>
+          }
+        </ul>
+      </section>
+    }
+
+    <section class="question" aria-labelledby="question-heading">
+      <h2 id="question-heading">Gesucht</h2>
+      @if (puzzle.question.kind === 'symbol') {
+        <p class="question-text">
+          Welche Zahl steckt hinter <span class="picture">{{ puzzle.symbols[puzzle.question.symbol] }}</span>?
+        </p>
+      } @else {
+        <app-expression-view [expression]="puzzle.question.expression" [symbols]="puzzle.symbols" />
+      }
+    </section>
+
+    @if (game.solved()) {
+      <section class="solved" aria-live="polite">
+        <p class="solved-title">Richtig! 🎉 Die Lösung ist {{ puzzle.question.answer }}.</p>
+        <p>
+          {{ formatDuration(game.elapsedSeconds()) }} {{ hintsLabel(game.hintsUsed()) }}
+        </p>
+        @if (challengeVerdict()) {
+          <p class="verdict">{{ challengeVerdict() }}</p>
+        }
+        <div class="actions">
+          <button type="button" class="primary" (click)="shareResult()">Ergebnis teilen</button>
+          <button type="button" (click)="newPuzzle()">Neues Rätsel</button>
+        </div>
+      </section>
+    } @else {
+      <section aria-label="Antwort">
+        <p
+          class="answer"
+          [class.wrong]="game.wrongAnswers() > 0"
+          [attr.data-attempt]="game.wrongAnswers()"
+          aria-live="polite"
+        >
+          {{ game.input() || '…' }}
+        </p>
+        @if (game.wrongAnswers() > 0 && game.input() === '') {
+          <p class="feedback">Das stimmt noch nicht – versuch es noch einmal.</p>
+        }
+        <app-numpad
+          [confirmDisabled]="game.input() === ''"
+          (digit)="game.pressDigit($event)"
+          (erase)="game.deleteDigit()"
+          (confirm)="game.submit()"
+        />
+        <div class="actions">
+          <button type="button" [disabled]="!game.canHint()" (click)="game.useHint()">
+            Hinweis ({{ hintsLeft() }})
+          </button>
+          <button type="button" (click)="sharePuzzle()">Teilen</button>
+          <button type="button" (click)="newPuzzle()">Neu</button>
+        </div>
+      </section>
+    }
+
+    @if (shareService.notice()) {
+      <p class="notice" role="status">{{ shareService.notice() }}</p>
+    }
+  }
+</main>

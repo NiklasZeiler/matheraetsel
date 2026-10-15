@@ -1,0 +1,18 @@
+<div class="numpad" role="group" aria-label="Zahlenfeld">
+  @for (digit of topDigits; track digit) {
+    <button type="button" (click)="this.digit.emit(digit)">{{ digit }}</button>
+  }
+  <button type="button" class="erase" aria-label="Letzte Ziffer löschen" (click)="erase.emit()">
+    ⌫
+  </button>
+  <button type="button" (click)="this.digit.emit(0)">0</button>
+  <button
+    type="button"
+    class="confirm"
+    aria-label="Antwort prüfen"
+    [disabled]="confirmDisabled()"
+    (click)="confirm.emit()"
+  >
+    ✓
+  </button>
+</div>

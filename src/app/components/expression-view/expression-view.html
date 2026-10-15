@@ -1,0 +1,7 @@
+<p class="expression" role="img" [attr.aria-label]="label()">
+  @for (token of tokens(); track $index) {
+    <span class="token" [class]="token.kind" aria-hidden="true">{{ token.text }}</span>
+  }
+  <span class="token operator" aria-hidden="true">=</span>
+  <span class="token result" aria-hidden="true">{{ result() ?? '?' }}</span>
+</p>

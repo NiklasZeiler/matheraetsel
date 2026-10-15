@@ -1,0 +1,34 @@
+<main class="home">
+  <header>
+    <h1>Matherätsel</h1>
+    <p>Jedes Bild steht für eine Zahl. Finde heraus, welche – und löse die Frage.</p>
+  </header>
+
+  @if (unfinished) {
+    <a class="resume" [routerLink]="unfinishedRoute()">
+      Weiter rätseln: {{ unfinishedLabel() }} · {{ formatDuration(unfinished.elapsedSeconds) }}
+    </a>
+  }
+
+  <section aria-labelledby="levels-heading">
+    <h2 id="levels-heading">Stufe wählen</h2>
+    <ul class="levels">
+      @for (level of levels; track level.id) {
+        <li>
+          <button type="button" class="level" (click)="start(level.id)">
+            <span class="level-name">{{ level.label }}</span>
+            <span class="level-description">{{ level.description }}</span>
+            <span class="level-stats">
+              @if (game.stats()[level.id].solved > 0) {
+                {{ game.stats()[level.id].solved }} gelöst · Bestzeit
+                {{ formatDuration(game.stats()[level.id].bestSeconds ?? 0) }}
+              } @else {
+                Noch nicht gelöst
+              }
+            </span>
+          </button>
+        </li>
+      }
+    </ul>
+  </section>
+</main>
