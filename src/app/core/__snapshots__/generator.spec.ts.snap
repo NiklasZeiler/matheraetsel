@@ -1,0 +1,21 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`generatePuzzle > keeps existing links stable (golden puzzle) 1`] = `
+{
+  "rendered": [
+    "⭐ + ⭐ = 16",
+    "⭐ − ⛄ = 1",
+    "🎿 + ⛄ = 13",
+  ],
+  "symbols": [
+    "⭐",
+    "⛄",
+    "🎿",
+  ],
+  "values": [
+    8,
+    7,
+    6,
+  ],
+}
+`;
