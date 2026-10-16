@@ -22,6 +22,8 @@ export interface Session {
   notes: Record<number, string>;
   /** Sudoku pencil marks per cell, e.g. "135". */
   marks: Record<number, string>;
+  /** Cell puzzles: cells a hint filled in. Missing in sessions saved earlier. */
+  hinted?: number[];
 }
 
 /** The equation key predates the waage puzzle and is kept so existing stats survive. */
@@ -120,6 +122,9 @@ export class PersistenceService {
         solved: stored.solved,
         notes: this.cleanNotes(stored.notes),
         marks: this.cleanMarks(stored.marks),
+        hinted: Array.isArray(stored.hinted)
+          ? stored.hinted.filter((cell): cell is number => Number.isInteger(cell))
+          : undefined,
       };
     }
     return null;

@@ -312,4 +312,73 @@ describe('GameService notes', () => {
       expect(game.maxHints()).toBeLessThan(cells.length);
     });
   });
+
+  describe('hints in cell puzzles', () => {
+    function cellPuzzle(): { blanks: number[]; values: number[] } {
+      const puzzle = game.puzzle();
+      if (puzzle?.kind !== 'sudoku') {
+        throw new Error('expected a sudoku');
+      }
+      return {
+        blanks: puzzle.given.flatMap((given, cell) => (given ? [] : [cell])),
+        values: puzzle.values,
+      };
+    }
+
+    beforeEach(() => game.start('sudoku', 'mittel', 7));
+
+    it('skips cells that already hold the right number', () => {
+      const { blanks, values } = cellPuzzle();
+      const puzzle = game.puzzle();
+      const firstInOrder = puzzle?.hintOrder[0] ?? blanks[0];
+      game.selectTarget(blanks.find((cell) => cell !== firstInOrder) ?? blanks[0]);
+      game.selectTarget(firstInOrder);
+      game.pressDigit(values[firstInOrder]);
+
+      game.useHint();
+
+      expect(game.revealedSymbols()).toHaveLength(1);
+      expect(game.revealedSymbols()[0]).not.toBe(firstInOrder);
+      expect(blanks).toContain(game.revealedSymbols()[0]);
+    });
+
+    it('reveals the selected cell when it is empty or wrong', () => {
+      const { blanks, values } = cellPuzzle();
+      const chosen = blanks[blanks.length - 1];
+      game.selectTarget(chosen);
+      game.pressDigit((values[chosen] % 6) + 1);
+
+      game.useHint();
+
+      expect(game.revealedSymbols()).toEqual([chosen]);
+      expect(game.notes()[chosen]).toBeUndefined();
+    });
+
+    it('offers no hint when every remaining blank already holds the right number', () => {
+      const { blanks, values } = cellPuzzle();
+      blanks.slice(0, -1).forEach((cell) => {
+        game.selectTarget(cell);
+        game.pressDigit(values[cell]);
+      });
+      const last = blanks[blanks.length - 1];
+      game.selectTarget(last);
+      game.pressDigit((values[last] % 6) + 1);
+
+      expect(game.canHint()).toBe(true);
+      game.useHint();
+
+      expect(game.revealedSymbols()).toEqual([last]);
+    });
+
+    it('remembers revealed cells after the puzzle is reopened', () => {
+      game.useHint();
+      const revealed = [...game.revealedSymbols()];
+      game.stop();
+
+      game.start('sudoku', 'mittel', 7);
+
+      expect(game.revealedSymbols()).toEqual(revealed);
+      expect(game.hintsUsed()).toBe(1);
+    });
+  });
 });

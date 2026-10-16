@@ -62,11 +62,39 @@ export class GameService {
     return puzzle ? notesEnabled(puzzle) : false;
   });
 
-  readonly revealedSymbols = computed(() =>
-    (this.puzzle()?.hintOrder ?? []).slice(0, this.hintsUsed()),
-  );
+  /** Cell puzzles: the cells a hint filled in. They are chosen when the hint is used. */
+  private readonly hintedCells = signal<number[]>([]);
 
-  readonly canHint = computed(() => !this.solved() && this.hintsUsed() < this.maxHints());
+  /**
+   * What the hints revealed so far: cell indices in cell puzzles, otherwise the first entries
+   * of the puzzle's fixed hint order (symbols or sub-mobile ids).
+   */
+  readonly revealedSymbols = computed(() => {
+    const puzzle = this.puzzle();
+    if (!puzzle) {
+      return [];
+    }
+    return isCellPuzzle(puzzle) ? this.hintedCells() : puzzle.hintOrder.slice(0, this.hintsUsed());
+  });
+
+  /** Blank cells that hold nothing or a wrong number yet: the only ones a hint is worth for. */
+  private readonly hintCandidates = computed(() => {
+    const puzzle = this.puzzle();
+    if (!puzzle || !isCellPuzzle(puzzle)) {
+      return [];
+    }
+    const revealed = this.hintedCells();
+    const entries = this.notes();
+    return blankCells(puzzle).filter(
+      (cell) => !revealed.includes(cell) && Number(entries[cell] ?? 0) !== puzzle.values[cell],
+    );
+  });
+
+  readonly canHint = computed(() => {
+    const puzzle = this.puzzle();
+    const hasTarget = puzzle && isCellPuzzle(puzzle) ? this.hintCandidates().length > 0 : true;
+    return !this.solved() && this.hintsUsed() < this.maxHints() && hasTarget;
+  });
 
   start(type: PuzzleType, level: LevelId, seed: number): void {
     const session = this.persistence.loadSession();
@@ -80,6 +108,11 @@ export class GameService {
     this.pencilMode.set(false);
     this.wrongCells.set([]);
     this.hintsUsed.set(resumed?.hintsUsed ?? 0);
+    const puzzle = this.puzzle();
+    // Sessions saved before hints were chosen per cell fall back to the fixed order.
+    this.hintedCells.set(
+      resumed?.hinted ?? (puzzle ? puzzle.hintOrder.slice(0, resumed?.hintsUsed ?? 0) : []),
+    );
     this.elapsedSeconds.set(resumed?.elapsedSeconds ?? 0);
     this.solved.set(resumed?.solved ?? false);
     this.wrongAnswers.set(0);
@@ -162,6 +195,9 @@ export class GameService {
   useHint(): void {
     if (this.canHint()) {
       this.hintsUsed.update((count) => count + 1);
+      if (this.isCells()) {
+        this.revealHintCell();
+      }
       const target = this.target();
       if (typeof target === 'number' && this.revealedSymbols().includes(target)) {
         this.target.set(this.isCells() ? this.nextBlank(target) : 'answer');
@@ -181,6 +217,28 @@ export class GameService {
       this.checkCells();
       this.saveSession();
     }
+  }
+
+  /**
+   * Fills in one blank that is empty or wrong: the selected one if it qualifies, otherwise the
+   * next one in the puzzle's deduction order, otherwise the first remaining.
+   */
+  private revealHintCell(): void {
+    const puzzle = this.puzzle();
+    const candidates = this.hintCandidates();
+    if (!puzzle || !isCellPuzzle(puzzle) || candidates.length === 0) {
+      return;
+    }
+    const selected = this.target();
+    const cell =
+      typeof selected === 'number' && candidates.includes(selected)
+        ? selected
+        : (puzzle.hintOrder.find((next) => candidates.includes(next)) ?? candidates[0]);
+
+    this.hintedCells.update((cells) => [...cells, cell]);
+    this.notes.update(({ [cell]: _removed, ...rest }) => rest);
+    this.marks.update(({ [cell]: _removed, ...rest }) => rest);
+    this.wrongCells.update((cells) => cells.filter((wrong) => wrong !== cell));
   }
 
   private pressSudokuDigit(puzzle: SudokuPuzzle, digit: number): void {
@@ -315,6 +373,7 @@ export class GameService {
         solved: this.solved(),
         notes: this.notes(),
         marks: this.marks(),
+        hinted: this.hintedCells(),
       });
     }
   }
