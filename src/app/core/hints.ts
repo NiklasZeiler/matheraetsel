@@ -1,3 +1,4 @@
+import { isCellPuzzle } from './cells';
 import { AnyPuzzle } from './puzzle';
 
 /** How many hints a puzzle offers; the asked-for picture itself is never revealed. */
@@ -20,5 +21,5 @@ export function notesEnabled(puzzle: AnyPuzzle): boolean {
     return puzzle.mode === 'pictures';
   }
   // In cell puzzles the entered cell values are the notes.
-  return puzzle.kind !== 'kreuzzahl' && puzzle.kind !== 'pyramide';
+  return !isCellPuzzle(puzzle);
 }

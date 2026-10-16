@@ -40,6 +40,7 @@ const ROUTE_PREFIX: Record<PuzzleType, string> = {
   mobile: 'm',
   kreuzzahl: 'x',
   pyramide: 'p',
+  sudoku: 's',
 };
 
 /** Relative route for the router (hash routing keeps this working on any static host). */

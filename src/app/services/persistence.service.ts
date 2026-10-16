@@ -20,6 +20,8 @@ export interface Session {
   solved: boolean;
   /** Player's own guesses per symbol index. */
   notes: Record<number, string>;
+  /** Sudoku pencil marks per cell, e.g. "135". */
+  marks: Record<number, string>;
 }
 
 /** The equation key predates the waage puzzle and is kept so existing stats survive. */
@@ -29,6 +31,7 @@ const STATS_KEYS: Record<PuzzleType, string> = {
   mobile: 'raetsel.stats.mobile.v1',
   kreuzzahl: 'raetsel.stats.kreuzzahl.v1',
   pyramide: 'raetsel.stats.pyramide.v1',
+  sudoku: 'raetsel.stats.sudoku.v1',
 };
 const SESSION_KEY = 'raetsel.session.v1';
 const DAILY_KEY = 'raetsel.daily.v1';
@@ -116,6 +119,7 @@ export class PersistenceService {
         hintsUsed: stored.hintsUsed,
         solved: stored.solved,
         notes: this.cleanNotes(stored.notes),
+        marks: this.cleanMarks(stored.marks),
       };
     }
     return null;
@@ -123,6 +127,18 @@ export class PersistenceService {
 
   saveSession(session: Session): void {
     this.write(SESSION_KEY, session);
+  }
+
+  private cleanMarks(value: unknown): Record<number, string> {
+    const marks: Record<number, string> = {};
+    if (value && typeof value === 'object') {
+      for (const [key, text] of Object.entries(value)) {
+        if (/^\d+$/.test(key) && typeof text === 'string' && /^[1-9]{1,9}$/.test(text)) {
+          marks[Number(key)] = text;
+        }
+      }
+    }
+    return marks;
   }
 
   private cleanNotes(value: unknown): Record<number, string> {

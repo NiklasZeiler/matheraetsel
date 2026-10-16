@@ -60,6 +60,20 @@
       </section>
     }
 
+    @if (sudoku(); as board) {
+      <section aria-label="Sudoku">
+        <app-sudoku-view
+          [puzzle]="board"
+          [entries]="game.notes()"
+          [marks]="game.marks()"
+          [revealed]="game.revealedSymbols()"
+          [wrong]="game.wrongCells()"
+          [active]="activeCell()"
+          (cellSelect)="game.selectTarget($event)"
+        />
+      </section>
+    }
+
     @if (pyramid(); as stones) {
       <section aria-label="Zahlenpyramide">
         <app-pyramid-view
@@ -162,6 +176,11 @@
       @if (kreuz()) {
         <p class="question-text">Fülle die Lücken, sodass jede Zeile und jede Spalte stimmt.</p>
       }
+      @if (sudoku()) {
+        <p class="question-text">
+          Jede Ziffer steht in jeder Zeile, Spalte und jedem Block einmal.
+        </p>
+      }
       @if (pyramid()) {
         <p class="question-text">
           Fülle die Lücken: Jeder Stein ist die Summe der beiden Steine darunter.
@@ -229,7 +248,30 @@
             <p class="feedback">Das stimmt noch nicht – versuch es noch einmal.</p>
           }
         }
+        @if (sudoku()) {
+          <div class="mode" role="group" aria-label="Eingabeart">
+            <button
+              type="button"
+              [class.on]="!game.pencilMode()"
+              [attr.aria-pressed]="!game.pencilMode()"
+              (click)="game.pencilMode() && game.togglePencil()"
+            >
+              Zahl
+            </button>
+            <button
+              type="button"
+              [class.on]="game.pencilMode()"
+              [attr.aria-pressed]="game.pencilMode()"
+              (click)="!game.pencilMode() && game.togglePencil()"
+            >
+              Notiz
+            </button>
+          </div>
+        }
         <app-numpad
+          [maxDigit]="sudoku()?.size ?? 9"
+          [allowZero]="!sudoku()"
+          [compact]="!!sudoku()"
           [confirmDisabled]="game.target() === 'answer' && game.input() === ''"
           (digit)="game.pressDigit($event)"
           (erase)="game.deleteDigit()"

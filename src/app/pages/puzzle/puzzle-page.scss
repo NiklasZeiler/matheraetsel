@@ -218,6 +218,30 @@ h1 .daily-badge {
   vertical-align: middle;
 }
 
+.mode {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-1);
+  margin-bottom: var(--space-2);
+
+  button {
+    min-height: 2.4rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+
+    &.on {
+      border-color: var(--color-accent);
+      background: var(--color-accent);
+      color: var(--color-on-accent);
+    }
+  }
+}
+
 .question-pan {
   display: block;
   max-width: 14rem;

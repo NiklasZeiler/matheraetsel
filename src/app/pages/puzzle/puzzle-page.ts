@@ -2,6 +2,7 @@ import { Component, DestroyRef, computed, effect, inject, input, untracked } fro
 import { Router, RouterLink } from '@angular/router';
 import { ExpressionView } from '../../components/expression-view/expression-view';
 import { Numpad } from '../../components/numpad/numpad';
+import { SudokuView } from '../../components/sudoku-view/sudoku-view';
 import { PyramidView } from '../../components/pyramid-view/pyramid-view';
 import { KreuzView } from '../../components/kreuz-view/kreuz-view';
 import { FitWidth } from '../../components/fit-width/fit-width';
@@ -29,6 +30,7 @@ import { ShareService } from '../../services/share.service';
     FitWidth,
     KreuzView,
     PyramidView,
+    SudokuView,
   ],
   templateUrl: './puzzle-page.html',
   styleUrl: './puzzle-page.scss',
@@ -73,8 +75,13 @@ export class PuzzlePage {
     return puzzle?.kind === 'pyramide' ? puzzle : null;
   });
 
+  protected readonly sudoku = computed(() => {
+    const puzzle = this.game.puzzle();
+    return puzzle?.kind === 'sudoku' ? puzzle : null;
+  });
+
   /** Kreuzzahl and pyramid share one flow: tap a blank, type, auto check. */
-  protected readonly cellPuzzle = computed(() => this.kreuz() ?? this.pyramid());
+  protected readonly cellPuzzle = computed(() => this.kreuz() ?? this.pyramid() ?? this.sudoku());
 
   /** The number pad's current target as a cell index, or 'answer'. */
   protected readonly activeCell = computed(() => this.game.target());

@@ -1,6 +1,6 @@
 # Matherätsel
 
-Mobile PWA mit fünf Rätselarten, in je vier Stufen. Jedes Bild steht für eine versteckte Zahl.
+Mobile PWA mit sechs Rätselarten, in je vier Stufen. Jedes Bild steht für eine versteckte Zahl.
 
 - **Gleichungen** (`#/r/<stufe>/<seed>`): Gleichungssystem aus Bildern, gefragt ist ein Wert oder Ausdruck.
 - **Waage** (`#/w/<stufe>/<seed>`): Waagen im Gleichgewicht. Leicht und Mittel vergleichen Bilder
@@ -16,6 +16,10 @@ Mobile PWA mit fünf Rätselarten, in je vier Stufen. Jedes Bild steht für eine
 
 - **Pyramide** (`#/p/<stufe>/<seed>`): Summenpyramide, jeder Stein ist die Summe der beiden darunter.
   Bedienung und Prüfung wie beim Kreuzzahlrätsel.
+
+- **Sudoku** (`#/s/<stufe>/<seed>`): 4×4, 6×6 und zwei 9×9-Stufen. Jedes Rätsel ist allein durch
+  Logik lösbar (Naked und Hidden Singles, geprüft im Generator). Bleistift-Modus für Notizen,
+  Regelverstöße werden sofort markiert, am Ende prüft die App automatisch.
 
 **Tagesaufgabe:** Bei jeder Stufe gibt es einen Knopf „Heute". Der Seed ergibt sich aus
 Datum (Ortszeit), Rätselart und Stufe (`src/app/core/daily.ts`), alle bekommen also am selben Tag
@@ -34,7 +38,7 @@ npm run build    # Produktions-Build nach dist/matheraetsel
 ## Wichtig
 
 - Der Generator ist deterministisch: gleicher Seed + Stufe = gleiches Rätsel. Änderungen an
-  `generator.ts`, `waage-generator.ts`, `mobile-generator.ts`, `kreuzzahl-generator.ts`, `pyramid-generator.ts`, `daily.ts` (Seed-Bildung), die jeweiligen `*-levels.ts` oder `themes.ts` (alle in `src/app/core/`) machen bestehende Links ungültig,
+  `generator.ts`, `waage-generator.ts`, `mobile-generator.ts`, `kreuzzahl-generator.ts`, `pyramid-generator.ts`, `sudoku-generator.ts`, `daily.ts` (Seed-Bildung), die jeweiligen `*-levels.ts` oder `themes.ts` (alle in `src/app/core/`) machen bestehende Links ungültig,
   die Golden-Tests in den `*-generator.spec.ts` schlagen dann an.
 - Routing nutzt Hash-URLs (`#/r/<stufe>/<seed>`), damit jeder statische Host ohne Rewrite-Regeln reicht.
 

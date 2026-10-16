@@ -2,9 +2,11 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { generateAny } from '../core/generate-any';
 import { maxHints, notesEnabled } from '../core/hints';
 import { blankCells, isCellPuzzle } from '../core/cells';
+import { peersOf } from '../core/sudoku';
 import { DailyState, dailySeed, dailyStreak, dayKey } from '../core/daily';
 import { LevelId } from '../core/levels';
 import { AnyPuzzle, PuzzleType } from '../core/puzzle';
+import type { SudokuPuzzle } from '../core/sudoku';
 import { PersistenceService, Stats } from './persistence.service';
 
 const MAX_INPUT_LENGTH = 4;
@@ -20,6 +22,10 @@ export class GameService {
   readonly puzzle = signal<AnyPuzzle | null>(null);
   readonly input = signal('');
   readonly notes = signal<Record<number, string>>({});
+  /** Sudoku pencil marks per cell, e.g. "135". */
+  readonly marks = signal<Record<number, string>>({});
+  /** Sudoku: digits set pencil marks instead of the cell value. */
+  readonly pencilMode = signal(false);
   readonly target = signal<InputTarget>('answer');
   readonly hintsUsed = signal(0);
   readonly elapsedSeconds = signal(0);
@@ -34,6 +40,7 @@ export class GameService {
     mobile: this.persistence.loadStats('mobile'),
     kreuzzahl: this.persistence.loadStats('kreuzzahl'),
     pyramide: this.persistence.loadStats('pyramide'),
+    sudoku: this.persistence.loadStats('sudoku'),
   });
 
   /** Completed daily puzzles per day (stored locally). */
@@ -69,6 +76,8 @@ export class GameService {
     this.puzzle.set(generateAny(type, level, seed));
     this.input.set('');
     this.notes.set(resumed?.notes ?? {});
+    this.marks.set(resumed?.marks ?? {});
+    this.pencilMode.set(false);
     this.wrongCells.set([]);
     this.hintsUsed.set(resumed?.hintsUsed ?? 0);
     this.elapsedSeconds.set(resumed?.elapsedSeconds ?? 0);
@@ -94,8 +103,17 @@ export class GameService {
     this.target.set(target);
   }
 
+  togglePencil(): void {
+    this.pencilMode.update((on) => !on);
+  }
+
   pressDigit(digit: number): void {
     if (this.solved()) {
+      return;
+    }
+    const puzzle = this.puzzle();
+    if (puzzle?.kind === 'sudoku') {
+      this.pressSudokuDigit(puzzle, digit);
       return;
     }
     this.editTarget((current) =>
@@ -108,6 +126,10 @@ export class GameService {
   }
 
   deleteDigit(): void {
+    if (this.puzzle()?.kind === 'sudoku') {
+      this.deleteSudokuDigit();
+      return;
+    }
     this.editTarget((current) => current.slice(0, -1));
   }
 
@@ -159,6 +181,56 @@ export class GameService {
       this.checkCells();
       this.saveSession();
     }
+  }
+
+  private pressSudokuDigit(puzzle: SudokuPuzzle, digit: number): void {
+    const cell = this.target();
+    if (typeof cell !== 'number' || digit < 1 || digit > puzzle.size) {
+      return;
+    }
+    if (this.pencilMode()) {
+      if (this.notes()[cell]) {
+        return;
+      }
+      const current = this.marks()[cell] ?? '';
+      const next = current.includes(String(digit))
+        ? current.replace(String(digit), '')
+        : [...current, String(digit)].sort().join('');
+      this.marks.update((all) => ({ ...all, [cell]: next }));
+    } else {
+      this.notes.update((all) => ({ ...all, [cell]: String(digit) }));
+      // The digit is placed: drop its pencil marks and the same digit from peers' marks.
+      const peers = new Set(peersOf(puzzle, cell));
+      this.marks.update((all) =>
+        Object.fromEntries(
+          Object.entries(all).map(([key, text]) => [
+            key,
+            Number(key) === cell
+              ? ''
+              : peers.has(Number(key))
+                ? text.replace(String(digit), '')
+                : text,
+          ]),
+        ),
+      );
+      this.wrongCells.set([]);
+      this.checkCells();
+    }
+    this.saveSession();
+  }
+
+  private deleteSudokuDigit(): void {
+    const cell = this.target();
+    if (typeof cell !== 'number') {
+      return;
+    }
+    if (this.notes()[cell]) {
+      this.notes.update(({ [cell]: _removed, ...rest }) => rest);
+      this.wrongCells.set([]);
+    } else {
+      this.marks.update(({ [cell]: _removed, ...rest }) => rest);
+    }
+    this.saveSession();
   }
 
   private finishSolved(): void {
@@ -242,6 +314,7 @@ export class GameService {
         hintsUsed: this.hintsUsed(),
         solved: this.solved(),
         notes: this.notes(),
+        marks: this.marks(),
       });
     }
   }

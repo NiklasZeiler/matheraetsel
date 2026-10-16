@@ -21,6 +21,18 @@ button {
   }
 }
 
+button:disabled {
+  opacity: 0.35;
+}
+
+.hidden {
+  visibility: hidden;
+}
+
+.compact button {
+  min-height: 2.7rem;
+}
+
 .confirm {
   border-color: var(--color-accent);
   background: var(--color-accent);

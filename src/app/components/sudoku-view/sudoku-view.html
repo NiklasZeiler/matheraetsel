@@ -1,0 +1,46 @@
+<div
+  class="grid"
+  role="group"
+  aria-label="Sudoku"
+  [style.--size]="puzzle().size"
+  [style.--mark-columns]="markColumns()"
+>
+  @for (item of cells(); track item.cell) {
+    @if (item.editable) {
+      <button
+        type="button"
+        class="cell blank"
+        [class.active]="item.active"
+        [class.peer]="item.peer"
+        [class.same]="item.same"
+        [class.conflict]="item.conflict || item.wrong"
+        [class.box-right]="item.boxRight"
+        [class.box-bottom]="item.boxBottom"
+        [attr.aria-label]="'Feld ' + (item.text || 'leer')"
+        (click)="cellSelect.emit(item.cell)"
+      >
+        @if (item.text) {
+          <span class="digit entry">{{ item.text }}</span>
+        } @else {
+          <span class="marks">
+            @for (mark of item.marks; track $index) {
+              <span>{{ mark }}</span>
+            }
+          </span>
+        }
+      </button>
+    } @else {
+      <span
+        class="cell"
+        [class.peer]="item.peer"
+        [class.same]="item.same"
+        [class.conflict]="item.conflict"
+        [class.revealed]="item.revealed"
+        [class.box-right]="item.boxRight"
+        [class.box-bottom]="item.boxBottom"
+      >
+        <span class="digit">{{ item.text }}</span>
+      </span>
+    }
+  }
+</div>

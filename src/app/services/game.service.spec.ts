@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { dailySeed, dayKey } from '../core/daily';
+import { SudokuPuzzle, peersOf } from '../core/sudoku';
 import { GameService } from './game.service';
 
 describe('GameService notes', () => {
@@ -207,6 +208,108 @@ describe('GameService notes', () => {
 
       expect(game.solved()).toBe(true);
       expect(game.stats().pyramide.mittel.solved).toBe(1);
+    });
+  });
+
+  describe('sudoku', () => {
+    function setup(): { cells: number[]; values: number[]; puzzle: SudokuPuzzle } {
+      game.start('sudoku', 'leicht', 3);
+      const puzzle = game.puzzle();
+      if (puzzle?.kind !== 'sudoku') {
+        throw new Error('expected a sudoku');
+      }
+      const cells = puzzle.given.flatMap((given, cell) => (given ? [] : [cell]));
+      return { cells, values: puzzle.values, puzzle };
+    }
+
+    it('starts on a blank cell and has no per-picture notes', () => {
+      const { cells } = setup();
+      expect(cells).toContain(game.target());
+      expect(game.notesEnabled()).toBe(false);
+    });
+
+    it('sets pencil marks in pencil mode and clears them when a digit is placed', () => {
+      const { cells } = setup();
+      const cell = cells[0];
+      game.selectTarget(cell);
+      game.togglePencil();
+      game.pressDigit(2);
+      game.pressDigit(3);
+      expect(game.marks()[cell]).toBe('23');
+
+      game.pressDigit(2);
+      expect(game.marks()[cell]).toBe('3');
+
+      game.togglePencil();
+      game.pressDigit(4);
+      expect(game.notes()[cell]).toBe('4');
+      expect(game.marks()[cell]).toBe('');
+    });
+
+    it('removes a placed digit from the pencil marks of its peers', () => {
+      const { cells, puzzle } = setup();
+      const [first, second] = cells;
+      game.selectTarget(second);
+      game.togglePencil();
+      game.pressDigit(1);
+      game.pressDigit(2);
+      game.togglePencil();
+
+      game.selectTarget(first);
+      game.pressDigit(1);
+
+      const shareUnit = peersOf(puzzle, first).includes(second);
+      expect(game.marks()[second]).toBe(shareUnit ? '2' : '12');
+    });
+
+    it('ignores digits larger than the grid', () => {
+      const { cells } = setup();
+      game.selectTarget(cells[0]);
+      game.pressDigit(7);
+      expect(game.notes()[cells[0]]).toBeUndefined();
+    });
+
+    it('deletes the digit first and the pencil marks afterwards', () => {
+      const { cells } = setup();
+      const cell = cells[0];
+      game.selectTarget(cell);
+      game.togglePencil();
+      game.pressDigit(1);
+      game.togglePencil();
+      game.pressDigit(2);
+
+      game.deleteDigit();
+      expect(game.notes()[cell]).toBeUndefined();
+      expect(game.marks()[cell]).toBe('');
+
+      game.togglePencil();
+      game.pressDigit(3);
+      game.deleteDigit();
+      expect(game.marks()[cell]).toBeUndefined();
+    });
+
+    it('is solved once every blank holds the right digit', () => {
+      const { cells, values } = setup();
+      for (const cell of cells) {
+        game.selectTarget(cell);
+        game.pressDigit(values[cell]);
+      }
+
+      expect(game.solved()).toBe(true);
+      expect(game.stats().sudoku.leicht.solved).toBe(1);
+    });
+
+    it('marks wrong cells after a full but wrong grid and keeps hints below the blank count', () => {
+      const { cells, values } = setup();
+      cells.forEach((cell, index) => {
+        game.selectTarget(cell);
+        const wrong = (values[cell] % 4) + 1;
+        game.pressDigit(index === 0 ? wrong : values[cell]);
+      });
+
+      expect(game.solved()).toBe(false);
+      expect(game.wrongCells()).toEqual([cells[0]]);
+      expect(game.maxHints()).toBeLessThan(cells.length);
     });
   });
 });

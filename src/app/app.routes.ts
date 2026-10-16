@@ -11,5 +11,6 @@ export const routes: Routes = [
   { path: 'm/:level/:seed', component: PuzzlePage, data: { type: 'mobile' } },
   { path: 'x/:level/:seed', component: PuzzlePage, data: { type: 'kreuzzahl' } },
   { path: 'p/:level/:seed', component: PuzzlePage, data: { type: 'pyramide' } },
+  { path: 's/:level/:seed', component: PuzzlePage, data: { type: 'sudoku' } },
   { path: '**', redirectTo: '' },
 ];

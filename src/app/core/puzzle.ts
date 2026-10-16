@@ -3,9 +3,10 @@ import { LevelId } from './levels';
 import { KreuzPuzzle } from './kreuzzahl';
 import { MobilePuzzle } from './mobile';
 import { PyramidPuzzle } from './pyramid';
+import { SudokuPuzzle } from './sudoku';
 import { WaagePuzzle } from './waage';
 
-export type PuzzleType = 'gleichung' | 'waage' | 'mobile' | 'kreuzzahl' | 'pyramide';
+export type PuzzleType = 'gleichung' | 'waage' | 'mobile' | 'kreuzzahl' | 'pyramide' | 'sudoku';
 
 export const PUZZLE_TYPE_LABEL: Record<PuzzleType, string> = {
   gleichung: 'Gleichungen',
@@ -13,6 +14,7 @@ export const PUZZLE_TYPE_LABEL: Record<PuzzleType, string> = {
   mobile: 'Mobile',
   kreuzzahl: 'Kreuzzahl',
   pyramide: 'Pyramide',
+  sudoku: 'Sudoku',
 };
 
 export const PUZZLE_TYPES: readonly PuzzleType[] = [
@@ -21,6 +23,7 @@ export const PUZZLE_TYPES: readonly PuzzleType[] = [
   'mobile',
   'kreuzzahl',
   'pyramide',
+  'sudoku',
 ];
 
 export function isPuzzleType(value: unknown): value is PuzzleType {
@@ -51,4 +54,5 @@ export interface Puzzle {
   hintOrder: number[];
 }
 
-export type AnyPuzzle = Puzzle | WaagePuzzle | MobilePuzzle | KreuzPuzzle | PyramidPuzzle;
+export type AnyPuzzle =
+  Puzzle | WaagePuzzle | MobilePuzzle | KreuzPuzzle | PyramidPuzzle | SudokuPuzzle;
