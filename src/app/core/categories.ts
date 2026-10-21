@@ -5,6 +5,7 @@ import { PUZZLE_TYPE_LABEL, PuzzleType } from './puzzle';
 import { SUDOKU_LEVELS } from './sudoku-levels';
 import { PYRAMID_LEVELS } from './pyramid-levels';
 import { WAAGE_LEVELS } from './waage-levels';
+import { CODE_LEVELS } from './zahlenschloss-levels';
 
 export interface CategoryLevel {
   id: LevelId;
@@ -59,6 +60,12 @@ export const CATEGORIES: readonly Category[] = [
     title: PUZZLE_TYPE_LABEL.sudoku,
     summary: 'In jeder Zeile, Spalte und jedem Block steht jede Ziffer einmal.',
     levels: levelsOf((id) => SUDOKU_LEVELS[id].description),
+  },
+  {
+    type: 'zahlenschloss',
+    title: PUZZLE_TYPE_LABEL.zahlenschloss,
+    summary: 'Knacke den Code. Jeder Versuch verrät, wie viele Ziffern stimmen.',
+    levels: levelsOf((id) => CODE_LEVELS[id].description),
   },
 ];
 

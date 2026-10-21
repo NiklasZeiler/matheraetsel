@@ -157,6 +157,94 @@ describe('GameService notes', () => {
     });
   });
 
+  describe('zahlenschloss', () => {
+    function typeCode(code: string): void {
+      for (const digit of code) {
+        game.pressDigit(Number(digit));
+      }
+    }
+
+    it('solves once every slot holds the right digit', () => {
+      game.start('zahlenschloss', 'leicht', 5);
+      const puzzle = game.puzzle();
+      if (puzzle?.kind !== 'zahlenschloss') {
+        throw new Error('expected a lock');
+      }
+      const hinted = game.revealedSymbols();
+      expect(hinted).toEqual([]);
+
+      typeCode(puzzle.question.answer);
+
+      expect(game.solved()).toBe(true);
+    });
+
+    it('clears the entry after a wrong code without marking any slot', () => {
+      game.start('zahlenschloss', 'leicht', 5);
+      const puzzle = game.puzzle();
+      if (puzzle?.kind !== 'zahlenschloss') {
+        throw new Error('expected a lock');
+      }
+      const wrong = puzzle.code.map((digit) => (digit + 1) % 10).join('');
+
+      typeCode(wrong);
+
+      expect(game.solved()).toBe(false);
+      expect(game.wrongAnswers()).toBe(1);
+      expect(game.notes()).toEqual({});
+      expect(game.wrongCells()).toEqual([]);
+      expect(game.target()).toBe(0);
+    });
+
+    it('fills a selected slot and moves on to the next empty one', () => {
+      game.start('zahlenschloss', 'schwer', 5);
+      game.selectTarget(2);
+      game.pressDigit(7);
+
+      expect(game.notes()[2]).toBe('7');
+      expect(game.target()).toBe(3);
+    });
+
+    it('reveals a fixed position with a hint and needs only the other digits', () => {
+      game.start('zahlenschloss', 'leicht', 5);
+      const puzzle = game.puzzle();
+      if (puzzle?.kind !== 'zahlenschloss') {
+        throw new Error('expected a lock');
+      }
+      expect(game.maxHints()).toBe(1);
+
+      game.useHint();
+      const revealed = game.revealedSymbols()[0];
+      expect(revealed).toBe(puzzle.hintOrder[0]);
+      expect(game.target()).not.toBe(revealed);
+
+      const rest = puzzle.code.flatMap((digit, position) => (position === revealed ? [] : [digit]));
+      typeCode(rest.join(''));
+
+      expect(game.solved()).toBe(true);
+      expect(game.canHint()).toBe(false);
+    });
+
+    it('keeps crossed-out digits and lets the player undo them', () => {
+      game.start('zahlenschloss', 'mittel', 5);
+      game.toggleExcluded(3);
+      game.toggleExcluded(8);
+      expect(Object.keys(game.marks())).toEqual(['3', '8']);
+
+      game.toggleExcluded(3);
+      expect(Object.keys(game.marks())).toEqual(['8']);
+    });
+
+    it('deletes the last typed digit', () => {
+      game.start('zahlenschloss', 'schwer', 5);
+      game.pressDigit(1);
+      game.pressDigit(2);
+      game.deleteDigit();
+
+      expect(game.notes()).toEqual({ 0: '1' });
+      expect(game.target()).toBe(1);
+    });
+  });
+
   describe('progress', () => {
     function solveCurrent(): void {
       const puzzle = game.puzzle();

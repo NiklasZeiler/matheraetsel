@@ -7,6 +7,7 @@ import { DailyState, dailySeed, dailyStreak, dayKey } from '../core/daily';
 import { LevelId } from '../core/levels';
 import { AnyPuzzle, PuzzleType } from '../core/puzzle';
 import type { SudokuPuzzle } from '../core/sudoku';
+import type { CodePuzzle } from '../core/zahlenschloss';
 import { Award, applySolved, puzzleKey } from '../core/progress';
 import { PersistenceService, Stats } from './persistence.service';
 
@@ -42,6 +43,7 @@ export class GameService {
     kreuzzahl: this.persistence.loadStats('kreuzzahl'),
     pyramide: this.persistence.loadStats('pyramide'),
     sudoku: this.persistence.loadStats('sudoku'),
+    zahlenschloss: this.persistence.loadStats('zahlenschloss'),
   });
 
   /** Completed daily puzzles per day (stored locally). */
@@ -122,7 +124,7 @@ export class GameService {
     this.solved.set(resumed?.solved ?? false);
     this.wrongAnswers.set(0);
     this.lastAward.set(null);
-    this.target.set(this.isCells() ? this.nextBlank(-1) : 'answer');
+    this.target.set(this.firstTarget());
     this.saveSession();
     this.startTimer();
   }
@@ -155,6 +157,10 @@ export class GameService {
       this.pressSudokuDigit(puzzle, digit);
       return;
     }
+    if (puzzle?.kind === 'zahlenschloss') {
+      this.pressCodeDigit(puzzle, digit);
+      return;
+    }
     this.editTarget((current) =>
       current.length >= MAX_INPUT_LENGTH
         ? current
@@ -165,8 +171,13 @@ export class GameService {
   }
 
   deleteDigit(): void {
-    if (this.puzzle()?.kind === 'sudoku') {
+    const puzzle = this.puzzle();
+    if (puzzle?.kind === 'sudoku') {
       this.deleteSudokuDigit();
+      return;
+    }
+    if (puzzle?.kind === 'zahlenschloss') {
+      this.deleteCodeDigit(puzzle);
       return;
     }
     this.editTarget((current) => current.slice(0, -1));
@@ -175,6 +186,10 @@ export class GameService {
   submit(): void {
     const puzzle = this.puzzle();
     if (!puzzle || this.solved()) {
+      return;
+    }
+    if (puzzle.kind === 'zahlenschloss') {
+      this.checkCode(puzzle);
       return;
     }
     if (isCellPuzzle(puzzle)) {
@@ -206,7 +221,7 @@ export class GameService {
       }
       const target = this.target();
       if (typeof target === 'number' && this.revealedSymbols().includes(target)) {
-        this.target.set(this.isCells() ? this.nextBlank(target) : 'answer');
+        this.target.set(this.isCells() ? this.nextBlank(target) : this.firstTarget());
       }
       this.checkCells();
       this.saveSession();
@@ -329,6 +344,91 @@ export class GameService {
     this.progress.set(result.progress);
     this.lastAward.set(result.award);
     this.saveSession();
+  }
+
+  /** The slot or answer field a fresh puzzle starts on. */
+  private firstTarget(): InputTarget {
+    if (this.puzzle()?.kind === 'zahlenschloss') {
+      return this.nextSlot(-1);
+    }
+    return this.isCells() ? this.nextBlank(-1) : 'answer';
+  }
+
+  /** Code slots no hint has filled in, as positions. */
+  private openSlots(puzzle: CodePuzzle): number[] {
+    const revealed = this.revealedSymbols();
+    return puzzle.code.flatMap((_, position) => (revealed.includes(position) ? [] : [position]));
+  }
+
+  /** Next empty open slot after `after` (wrapping), otherwise the first open one. */
+  private nextSlot(after: number): InputTarget {
+    const puzzle = this.puzzle();
+    if (puzzle?.kind !== 'zahlenschloss') {
+      return 'answer';
+    }
+    const open = this.openSlots(puzzle);
+    const empty = open.filter((position) => !this.notes()[position]);
+    return empty.find((position) => position > after) ?? empty[0] ?? open[0] ?? 'answer';
+  }
+
+  private pressCodeDigit(puzzle: CodePuzzle, digit: number): void {
+    const target = this.target();
+    if (typeof target !== 'number' || this.revealedSymbols().includes(target)) {
+      return;
+    }
+    this.notes.update((entries) => ({ ...entries, [target]: String(digit) }));
+    this.target.set(this.nextSlot(target));
+    this.checkCode(puzzle);
+    this.saveSession();
+  }
+
+  private deleteCodeDigit(puzzle: CodePuzzle): void {
+    const target = this.target();
+    const filled = this.openSlots(puzzle).filter((position) => this.notes()[position]);
+    const slot = typeof target === 'number' && this.notes()[target] ? target : filled.at(-1);
+    if (slot === undefined) {
+      return;
+    }
+    this.notes.update((entries) => {
+      const { [slot]: _removed, ...rest } = entries;
+      return rest;
+    });
+    this.target.set(slot);
+    this.saveSession();
+  }
+
+  /** Crossing out a digit is a private note: it is kept in the marks, one entry per digit. */
+  toggleExcluded(digit: number): void {
+    if (this.solved() || this.puzzle()?.kind !== 'zahlenschloss') {
+      return;
+    }
+    this.marks.update((marks) => {
+      const { [digit]: removed, ...rest } = marks;
+      return removed ? rest : { ...marks, [digit]: '1' };
+    });
+    this.saveSession();
+  }
+
+  /** Once every slot holds a digit, solve the lock or clear the entry; wrong slots stay unmarked. */
+  private checkCode(puzzle: CodePuzzle): void {
+    if (this.solved()) {
+      return;
+    }
+    const revealed = this.revealedSymbols();
+    const entries = this.notes();
+    const digits = puzzle.code.map((_, position) =>
+      revealed.includes(position) ? String(puzzle.code[position]) : (entries[position] ?? ''),
+    );
+    if (digits.some((digit) => digit === '')) {
+      return;
+    }
+    if (digits.join('') === puzzle.question.answer) {
+      this.finishSolved();
+      return;
+    }
+    this.wrongAnswers.update((count) => count + 1);
+    this.notes.set({});
+    this.target.set(this.nextSlot(-1));
   }
 
   private isCells(): boolean {

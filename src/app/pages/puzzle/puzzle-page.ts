@@ -11,6 +11,7 @@ import { PanView } from '../../components/pan-view/pan-view';
 import { ScaleView } from '../../components/scale-view/scale-view';
 import { formatDuration, hintsLabel } from '../../core/format';
 import { LEVELS } from '../../core/levels';
+import { clueText } from '../../core/zahlenschloss';
 import { barWeight, mobileLabel, subMobiles } from '../../core/mobile';
 import { PUZZLE_TYPE_LABEL, PuzzleType } from '../../core/puzzle';
 import { createSeed } from '../../core/random';
@@ -78,6 +79,43 @@ export class PuzzlePage {
   protected readonly sudoku = computed(() => {
     const puzzle = this.game.puzzle();
     return puzzle?.kind === 'sudoku' ? puzzle : null;
+  });
+
+  protected readonly code = computed(() => {
+    const puzzle = this.game.puzzle();
+    return puzzle?.kind === 'zahlenschloss' ? puzzle : null;
+  });
+
+  protected readonly clueRows = computed(() =>
+    (this.code()?.clues ?? []).map((clue) => ({ guess: clue.guess, text: clueText(clue) })),
+  );
+
+  /** One slot per code position: the player's digit, or the real one once a hint revealed it. */
+  protected readonly codeSlots = computed(() => {
+    const puzzle = this.code();
+    if (!puzzle) {
+      return [];
+    }
+    const revealed = this.game.revealedSymbols();
+    const entries = this.game.notes();
+    return puzzle.code.map((digit, position) => {
+      const isRevealed = revealed.includes(position);
+      return {
+        position,
+        revealed: isRevealed,
+        text: isRevealed ? String(digit) : (entries[position] ?? ''),
+      };
+    });
+  });
+
+  protected readonly codeTyping = computed(() =>
+    this.codeSlots().some((slot) => !slot.revealed && slot.text !== ''),
+  );
+
+  /** Digits 0-9 with a flag for the ones the player crossed out. */
+  protected readonly digitChips = computed(() => {
+    const marks = this.game.marks();
+    return Array.from({ length: 10 }, (_, digit) => ({ digit, excluded: !!marks[digit] }));
   });
 
   /** Kreuzzahl and pyramid share one flow: tap a blank, type, auto check. */
@@ -170,7 +208,7 @@ export class PuzzlePage {
   /** One entry per picture: the player's own guess, or the true value once a hint revealed it. */
   protected readonly noteItems = computed(() => {
     const puzzle = this.game.puzzle();
-    if (!puzzle) {
+    if (!puzzle || puzzle.kind === 'zahlenschloss') {
       return [];
     }
     const revealed = this.game.revealedSymbols();

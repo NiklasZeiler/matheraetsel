@@ -21,6 +21,11 @@ Mobile PWA mit sechs Rätselarten, in je vier Stufen. Jedes Bild steht für eine
   Logik lösbar (Naked und Hidden Singles, geprüft im Generator). Bleistift-Modus für Notizen,
   Regelverstöße werden sofort markiert, am Ende prüft die App automatisch.
 
+- **Zahlenschloss** (`#/z/<stufe>/<seed>`): Mastermind-artig. Mehrere Versuche mit Rückmeldung („richtig
+  platziert" / „richtig, aber falsch platziert") ergeben genau einen Code; der Generator beweist die
+  Eindeutigkeit durch Aufzählen aller Codes. Ein Hinweis deckt eine Stelle auf, falsche Codes werden
+  ohne Detailrückmeldung abgewiesen. Ziffern lassen sich durchstreichen.
+
 **Tagesaufgabe:** Bei jeder Stufe gibt es einen Knopf „Heute". Der Seed ergibt sich aus
 Datum (Ortszeit), Rätselart und Stufe (`src/app/core/daily.ts`), alle bekommen also am selben Tag
 dasselbe Rätsel. Erledigte Tage und die Serie liegen lokal im Browser.
@@ -38,7 +43,7 @@ npm run build    # Produktions-Build nach dist/matheraetsel
 ## Wichtig
 
 - Der Generator ist deterministisch: gleicher Seed + Stufe = gleiches Rätsel. Änderungen an
-  `generator.ts`, `waage-generator.ts`, `mobile-generator.ts`, `kreuzzahl-generator.ts`, `pyramid-generator.ts`, `sudoku-generator.ts`, `daily.ts` (Seed-Bildung), die jeweiligen `*-levels.ts` oder `themes.ts` (alle in `src/app/core/`) machen bestehende Links ungültig,
+  `generator.ts`, `waage-generator.ts`, `mobile-generator.ts`, `kreuzzahl-generator.ts`, `pyramid-generator.ts`, `sudoku-generator.ts`, `zahlenschloss-generator.ts`, `daily.ts` (Seed-Bildung), die jeweiligen `*-levels.ts` oder `themes.ts` (alle in `src/app/core/`) machen bestehende Links ungültig,
   die Golden-Tests in den `*-generator.spec.ts` schlagen dann an.
 - Routing nutzt Hash-URLs (`#/r/<stufe>/<seed>`), damit jeder statische Host ohne Rewrite-Regeln reicht.
 

@@ -5,8 +5,10 @@ import { MobilePuzzle } from './mobile';
 import { PyramidPuzzle } from './pyramid';
 import { SudokuPuzzle } from './sudoku';
 import { WaagePuzzle } from './waage';
+import { CodePuzzle } from './zahlenschloss';
 
-export type PuzzleType = 'gleichung' | 'waage' | 'mobile' | 'kreuzzahl' | 'pyramide' | 'sudoku';
+export type PuzzleType =
+  'gleichung' | 'waage' | 'mobile' | 'kreuzzahl' | 'pyramide' | 'sudoku' | 'zahlenschloss';
 
 export const PUZZLE_TYPE_LABEL: Record<PuzzleType, string> = {
   gleichung: 'Gleichungen',
@@ -15,6 +17,7 @@ export const PUZZLE_TYPE_LABEL: Record<PuzzleType, string> = {
   kreuzzahl: 'Kreuzzahl',
   pyramide: 'Pyramide',
   sudoku: 'Sudoku',
+  zahlenschloss: 'Zahlenschloss',
 };
 
 export const PUZZLE_TYPES: readonly PuzzleType[] = [
@@ -24,6 +27,7 @@ export const PUZZLE_TYPES: readonly PuzzleType[] = [
   'kreuzzahl',
   'pyramide',
   'sudoku',
+  'zahlenschloss',
 ];
 
 export function isPuzzleType(value: unknown): value is PuzzleType {
@@ -55,4 +59,4 @@ export interface Puzzle {
 }
 
 export type AnyPuzzle =
-  Puzzle | WaagePuzzle | MobilePuzzle | KreuzPuzzle | PyramidPuzzle | SudokuPuzzle;
+  Puzzle | WaagePuzzle | MobilePuzzle | KreuzPuzzle | PyramidPuzzle | SudokuPuzzle | CodePuzzle;

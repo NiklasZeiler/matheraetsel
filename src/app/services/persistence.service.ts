@@ -35,6 +35,7 @@ const STATS_KEYS: Record<PuzzleType, string> = {
   kreuzzahl: 'raetsel.stats.kreuzzahl.v1',
   pyramide: 'raetsel.stats.pyramide.v1',
   sudoku: 'raetsel.stats.sudoku.v1',
+  zahlenschloss: 'raetsel.stats.zahlenschloss.v1',
 };
 const SESSION_KEY = 'raetsel.session.v1';
 const DAILY_KEY = 'raetsel.daily.v1';

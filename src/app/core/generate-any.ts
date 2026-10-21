@@ -6,6 +6,7 @@ import { generateSudoku } from './sudoku-generator';
 import { generateMobile } from './mobile-generator';
 import { AnyPuzzle, PuzzleType } from './puzzle';
 import { generateWaage } from './waage-generator';
+import { generateCode } from './zahlenschloss-generator';
 
 export function generateAny(type: PuzzleType, level: LevelId, seed: number): AnyPuzzle {
   switch (type) {
@@ -13,6 +14,8 @@ export function generateAny(type: PuzzleType, level: LevelId, seed: number): Any
       return generateWaage(level, seed);
     case 'mobile':
       return generateMobile(level, seed);
+    case 'zahlenschloss':
+      return generateCode(level, seed);
     case 'sudoku':
       return generateSudoku(level, seed);
     case 'pyramide':

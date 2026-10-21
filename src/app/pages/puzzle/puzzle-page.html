@@ -74,6 +74,23 @@
       </section>
     }
 
+    @if (code()) {
+      <section aria-label="Versuche am Schloss">
+        <ol class="clues">
+          @for (clue of clueRows(); track $index) {
+            <li>
+              <span class="guess" aria-label="Versuch">
+                @for (digit of clue.guess; track $index) {
+                  <span class="guess-digit">{{ digit }}</span>
+                }
+              </span>
+              <span class="clue-text">{{ clue.text }}</span>
+            </li>
+          }
+        </ol>
+      </section>
+    }
+
     @if (pyramid(); as stones) {
       <section aria-label="Zahlenpyramide">
         <app-pyramid-view
@@ -181,6 +198,9 @@
           Jede Ziffer steht in jeder Zeile, Spalte und jedem Block einmal.
         </p>
       }
+      @if (code()) {
+        <p class="question-text">Welcher Code öffnet das Schloss?</p>
+      }
       @if (pyramid()) {
         <p class="question-text">
           Fülle die Lücken: Jeder Stein ist die Summe der beiden Steine darunter.
@@ -209,6 +229,10 @@
       <section class="solved" aria-live="polite">
         @if (cellPuzzle()) {
           <p class="solved-title">Richtig! 🎉 Alle Lücken stimmen.</p>
+        } @else if (code()) {
+          <p class="solved-title">
+            Das Schloss ist offen! 🔓 Der Code ist {{ puzzle.question.answer }}.
+          </p>
         } @else {
           <p class="solved-title">Richtig! 🎉 Die Lösung ist {{ puzzle.question.answer }}.</p>
         }
@@ -250,6 +274,43 @@
           @if (game.wrongCells().length > 0) {
             <p class="feedback">Mindestens eine Zahl stimmt noch nicht – sie ist rot markiert.</p>
           }
+        } @else if (code()) {
+          <div
+            class="slots"
+            [class.wrong]="game.wrongAnswers() > 0"
+            [attr.data-attempt]="game.wrongAnswers()"
+          >
+            @for (slot of codeSlots(); track slot.position) {
+              <button
+                type="button"
+                class="slot"
+                [class.active]="game.target() === slot.position"
+                [class.revealed]="slot.revealed"
+                [disabled]="slot.revealed"
+                [attr.aria-label]="'Stelle ' + (slot.position + 1)"
+                (click)="game.selectTarget(slot.position)"
+              >
+                {{ slot.text || '·' }}
+              </button>
+            }
+          </div>
+          @if (game.wrongAnswers() > 0 && !codeTyping()) {
+            <p class="feedback">Das stimmt noch nicht – versuch es noch einmal.</p>
+          }
+          <div class="chips" role="group" aria-label="Ziffern ausschließen">
+            @for (chip of digitChips(); track chip.digit) {
+              <button
+                type="button"
+                class="chip"
+                [class.excluded]="chip.excluded"
+                [attr.aria-pressed]="chip.excluded"
+                (click)="game.toggleExcluded(chip.digit)"
+              >
+                {{ chip.digit }}
+              </button>
+            }
+          </div>
+          <p class="chips-hint">Tippe eine Ziffer an, um sie durchzustreichen.</p>
         } @else {
           <button
             type="button"
@@ -289,7 +350,7 @@
           [maxDigit]="sudoku()?.size ?? 9"
           [allowZero]="!sudoku()"
           [compact]="!!sudoku()"
-          [confirmDisabled]="game.target() === 'answer' && game.input() === ''"
+          [confirmDisabled]="!!code() || (game.target() === 'answer' && game.input() === '')"
           (digit)="game.pressDigit($event)"
           (erase)="game.deleteDigit()"
           (confirm)="game.submit()"

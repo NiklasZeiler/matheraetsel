@@ -17,6 +17,9 @@ export function notesEnabled(puzzle: AnyPuzzle): boolean {
   if (puzzle.kind === 'waage') {
     return puzzle.mode === 'weights';
   }
+  if (puzzle.kind === 'zahlenschloss') {
+    return false;
+  }
   if (puzzle.kind === 'mobile') {
     return puzzle.mode === 'pictures';
   }

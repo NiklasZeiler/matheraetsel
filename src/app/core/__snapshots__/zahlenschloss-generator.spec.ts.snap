@@ -1,0 +1,254 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`generateCode > keeps existing links stable (golden puzzle) 1`] = `
+[
+  {
+    "clues": [
+      {
+        "correct": 2,
+        "guess": [
+          7,
+          0,
+          8,
+        ],
+        "misplaced": 0,
+      },
+      {
+        "correct": 0,
+        "guess": [
+          2,
+          9,
+          1,
+        ],
+        "misplaced": 0,
+      },
+      {
+        "correct": 0,
+        "guess": [
+          9,
+          8,
+          3,
+        ],
+        "misplaced": 0,
+      },
+      {
+        "correct": 0,
+        "guess": [
+          5,
+          6,
+          3,
+        ],
+        "misplaced": 0,
+      },
+    ],
+    "code": [
+      7,
+      0,
+      4,
+    ],
+    "hintOrder": [
+      1,
+    ],
+    "levelId": "leicht",
+  },
+  {
+    "clues": [
+      {
+        "correct": 0,
+        "guess": [
+          0,
+          5,
+          6,
+        ],
+        "misplaced": 0,
+      },
+      {
+        "correct": 1,
+        "guess": [
+          5,
+          9,
+          2,
+        ],
+        "misplaced": 0,
+      },
+      {
+        "correct": 1,
+        "guess": [
+          0,
+          3,
+          8,
+        ],
+        "misplaced": 1,
+      },
+      {
+        "correct": 0,
+        "guess": [
+          2,
+          7,
+          0,
+        ],
+        "misplaced": 1,
+      },
+    ],
+    "code": [
+      8,
+      3,
+      2,
+    ],
+    "hintOrder": [
+      1,
+    ],
+    "levelId": "mittel",
+  },
+  {
+    "clues": [
+      {
+        "correct": 0,
+        "guess": [
+          5,
+          0,
+          1,
+          6,
+        ],
+        "misplaced": 2,
+      },
+      {
+        "correct": 1,
+        "guess": [
+          6,
+          8,
+          7,
+          2,
+        ],
+        "misplaced": 0,
+      },
+      {
+        "correct": 0,
+        "guess": [
+          6,
+          0,
+          9,
+          5,
+        ],
+        "misplaced": 2,
+      },
+      {
+        "correct": 0,
+        "guess": [
+          0,
+          1,
+          4,
+          8,
+        ],
+        "misplaced": 2,
+      },
+      {
+        "correct": 0,
+        "guess": [
+          4,
+          7,
+          2,
+          9,
+        ],
+        "misplaced": 2,
+      },
+      {
+        "correct": 0,
+        "guess": [
+          8,
+          3,
+          2,
+          9,
+        ],
+        "misplaced": 1,
+      },
+    ],
+    "code": [
+      1,
+      9,
+      7,
+      0,
+    ],
+    "hintOrder": [
+      2,
+      3,
+    ],
+    "levelId": "schwer",
+  },
+  {
+    "clues": [
+      {
+        "correct": 0,
+        "guess": [
+          1,
+          8,
+          5,
+          6,
+        ],
+        "misplaced": 2,
+      },
+      {
+        "correct": 0,
+        "guess": [
+          7,
+          8,
+          3,
+          5,
+        ],
+        "misplaced": 1,
+      },
+      {
+        "correct": 0,
+        "guess": [
+          5,
+          3,
+          0,
+          3,
+        ],
+        "misplaced": 1,
+      },
+      {
+        "correct": 1,
+        "guess": [
+          0,
+          2,
+          7,
+          1,
+        ],
+        "misplaced": 2,
+      },
+      {
+        "correct": 0,
+        "guess": [
+          1,
+          7,
+          3,
+          0,
+        ],
+        "misplaced": 3,
+      },
+      {
+        "correct": 0,
+        "guess": [
+          3,
+          1,
+          9,
+          4,
+        ],
+        "misplaced": 1,
+      },
+    ],
+    "code": [
+      0,
+      6,
+      1,
+      7,
+    ],
+    "hintOrder": [
+      3,
+      2,
+    ],
+    "levelId": "knobler",
+  },
+]
+`;
