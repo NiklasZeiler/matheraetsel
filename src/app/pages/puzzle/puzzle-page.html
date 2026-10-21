@@ -213,6 +213,23 @@
           <p class="solved-title">Richtig! 🎉 Die Lösung ist {{ puzzle.question.answer }}.</p>
         }
         <p>{{ formatDuration(game.elapsedSeconds()) }} {{ hintsLabel(game.hintsUsed()) }}</p>
+        @if (game.lastAward(); as award) {
+          <p class="verdict">
+            +{{ award.total }} XP
+            @if (award.noHintBonus > 0 || award.dailyBonus > 0) {
+              <span class="xp-detail">
+                ({{ award.base }} Rätsel
+                @if (award.noHintBonus > 0) {
+                  + {{ award.noHintBonus }} ohne Hinweis
+                }
+                @if (award.dailyBonus > 0) {
+                  + {{ award.dailyBonus }} Tagesaufgabe
+                }
+                )
+              </span>
+            }
+          </p>
+        }
         @if (game.isDaily()) {
           <p class="verdict">
             Tagesaufgabe geschafft · Serie: {{ game.streak() }}

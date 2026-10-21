@@ -7,6 +7,7 @@ import { DailyState, dailySeed, dailyStreak, dayKey } from '../core/daily';
 import { LevelId } from '../core/levels';
 import { AnyPuzzle, PuzzleType } from '../core/puzzle';
 import type { SudokuPuzzle } from '../core/sudoku';
+import { Award, applySolved, puzzleKey } from '../core/progress';
 import { PersistenceService, Stats } from './persistence.service';
 
 const MAX_INPUT_LENGTH = 4;
@@ -46,6 +47,10 @@ export class GameService {
   /** Completed daily puzzles per day (stored locally). */
   readonly daily = signal<DailyState>(this.persistence.loadDaily());
   readonly streak = computed(() => dailyStreak(this.daily(), dayKey()));
+  /** XP, league and badge data (stored locally). */
+  readonly progress = signal(this.persistence.loadProgress(dayKey()));
+  /** XP paid out for the puzzle that was just solved; null for a repeat or an unsolved puzzle. */
+  readonly lastAward = signal<Award | null>(null);
   /** True while playing today's daily puzzle of this type and level. */
   readonly isDaily = computed(() => {
     const puzzle = this.puzzle();
@@ -116,6 +121,7 @@ export class GameService {
     this.elapsedSeconds.set(resumed?.elapsedSeconds ?? 0);
     this.solved.set(resumed?.solved ?? false);
     this.wrongAnswers.set(0);
+    this.lastAward.set(null);
     this.target.set(this.isCells() ? this.nextBlank(-1) : 'answer');
     this.saveSession();
     this.startTimer();
@@ -308,6 +314,20 @@ export class GameService {
     if (this.isDaily()) {
       this.daily.set(this.persistence.recordDaily(dayKey(), type, puzzle.level));
     }
+    const result = applySolved(
+      this.progress(),
+      {
+        key: puzzleKey(type, puzzle.level, puzzle.seed),
+        level: puzzle.level,
+        hints: this.hintsUsed(),
+        daily: this.isDaily(),
+        streak: this.streak(),
+      },
+      dayKey(),
+    );
+    this.persistence.saveProgress(result.progress);
+    this.progress.set(result.progress);
+    this.lastAward.set(result.award);
     this.saveSession();
   }
 

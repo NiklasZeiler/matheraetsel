@@ -1,0 +1,48 @@
+<main class="progress">
+  <a class="back" routerLink="/">← Zurück</a>
+  <h1>Liga &amp; Abzeichen</h1>
+
+  <section class="league" aria-labelledby="league-heading">
+    <h2 id="league-heading">Deine Liga</h2>
+    <p class="league-name">{{ icons[league()] }} {{ leagues[league()] }}</p>
+    <p class="xp">{{ progress().totalXp }} XP gesamt · {{ thisWeekXp() }} XP diese Woche</p>
+
+    <ol class="week" aria-label="Aktive Tage dieser Woche">
+      @for (day of days(); track day.label) {
+        <li [class.active]="day.active" [class.today]="day.today" [class.future]="day.future">
+          <span class="dot">{{ day.active ? '✓' : '' }}</span>
+          <span class="day-label">{{ day.label }}</span>
+        </li>
+      }
+    </ol>
+    <p class="outlook">{{ activeCount() }} von {{ promotionDays }} Tagen. {{ weekOutlook() }}</p>
+
+    <ul class="ladder" aria-label="Alle Ligen">
+      @for (name of leagues; track name; let index = $index) {
+        <li
+          [class.current]="index === league()"
+          [class.reached]="index <= progress().highestLeague"
+        >
+          <span aria-hidden="true">{{ icons[index] }}</span> {{ name }}
+        </li>
+      }
+    </ul>
+    <p class="rules">
+      Jedes gelöste Rätsel gibt XP, mehr bei schwereren Stufen, ohne Hinweis und bei der
+      Tagesaufgabe. Wer in einer Woche an {{ promotionDays }} Tagen rätselt, steigt auf. Bei
+      höchstens {{ demotionDays }} aktivem Tag geht es eine Liga runter.
+    </p>
+  </section>
+
+  <section aria-labelledby="badges-heading">
+    <h2 id="badges-heading">Abzeichen ({{ earnedCount() }}/{{ badgeList().length }})</h2>
+    <ul class="badges">
+      @for (badge of badgeList(); track badge.id) {
+        <li [class.earned]="badge.earned">
+          <span class="badge-title">{{ badge.earned ? '🏅' : '🔒' }} {{ badge.title }}</span>
+          <span class="badge-description">{{ badge.description }}</span>
+        </li>
+      }
+    </ul>
+  </section>
+</main>

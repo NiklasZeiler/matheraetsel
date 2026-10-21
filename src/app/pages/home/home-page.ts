@@ -1,8 +1,9 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CATEGORIES, categoryOf } from '../../core/categories';
 import { formatDuration } from '../../core/format';
 import { LEVELS } from '../../core/levels';
+import { LEAGUES, LEAGUE_ICONS } from '../../core/progress';
 import { PuzzleType } from '../../core/puzzle';
 import { puzzleRoute } from '../../core/share-link';
 import { GameService } from '../../services/game.service';
@@ -21,6 +22,9 @@ export class HomePage {
     const session = inject(PersistenceService).loadSession();
     return session && !session.solved ? session : null;
   })();
+
+  protected readonly leagueName = computed(() => LEAGUES[this.game.progress().league]);
+  protected readonly leagueIcon = computed(() => LEAGUE_ICONS[this.game.progress().league]);
 
   protected readonly formatDuration = formatDuration;
 

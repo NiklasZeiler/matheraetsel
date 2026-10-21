@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { DailyState, dailyEntry } from '../core/daily';
+import { LEAGUES, Progress, emptyProgress, settleLeague } from '../core/progress';
 import { LEVEL_IDS, LevelId, isLevelId } from '../core/levels';
 import { PuzzleType, isPuzzleType } from '../core/puzzle';
 
@@ -37,6 +38,7 @@ const STATS_KEYS: Record<PuzzleType, string> = {
 };
 const SESSION_KEY = 'raetsel.session.v1';
 const DAILY_KEY = 'raetsel.daily.v1';
+const PROGRESS_KEY = 'raetsel.progress.v1';
 /** Older days are dropped so the stored list stays small. */
 const DAILY_DAYS_KEPT = 60;
 
@@ -101,6 +103,44 @@ export class PersistenceService {
     const trimmed = Object.fromEntries(kept.map((key) => [key, state[key]]));
     this.write(DAILY_KEY, trimmed);
     return trimmed;
+  }
+
+  /** Loads XP and league data; weeks that ended since the last visit are settled right away. */
+  loadProgress(today: string): Progress {
+    const fresh = emptyProgress(today);
+    const stored = this.read(PROGRESS_KEY) as Partial<Progress> | null;
+    if (!stored || typeof stored !== 'object') {
+      return fresh;
+    }
+    const count = (value: unknown, max: number) =>
+      typeof value === 'number' && Number.isFinite(value) ? Math.min(Math.max(0, value), max) : 0;
+    const xpByDay: Record<string, number> = {};
+    for (const [day, xp] of Object.entries(stored.xpByDay ?? {})) {
+      if (/^\d{4}-\d{2}-\d{2}$/.test(day) && typeof xp === 'number' && xp > 0) {
+        xpByDay[day] = xp;
+      }
+    }
+    const maxLeague = LEAGUES.length - 1;
+    const loaded: Progress = {
+      totalXp: count(stored.totalXp, Number.MAX_SAFE_INTEGER),
+      xpByDay,
+      league: Math.floor(count(stored.league, maxLeague)),
+      leagueWeek:
+        typeof stored.leagueWeek === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(stored.leagueWeek)
+          ? stored.leagueWeek
+          : fresh.leagueWeek,
+      awarded: Array.isArray(stored.awarded)
+        ? stored.awarded.filter((key): key is string => typeof key === 'string')
+        : [],
+      bestStreak: Math.floor(count(stored.bestStreak, 100000)),
+      highestLeague: Math.floor(count(stored.highestLeague, maxLeague)),
+      perfectKnobler: stored.perfectKnobler === true,
+    };
+    return settleLeague(loaded, today);
+  }
+
+  saveProgress(progress: Progress): void {
+    this.write(PROGRESS_KEY, progress);
   }
 
   loadSession(): Session | null {

@@ -157,6 +157,38 @@ describe('GameService notes', () => {
     });
   });
 
+  describe('progress', () => {
+    function solveCurrent(): void {
+      const puzzle = game.puzzle();
+      if (puzzle) {
+        for (const digit of String(puzzle.question.answer)) {
+          game.pressDigit(Number(digit));
+        }
+      }
+      game.submit();
+    }
+
+    it('awards XP once and keeps it after a reload', () => {
+      game.start('waage', 'schwer', 4242);
+      solveCurrent();
+
+      expect(game.lastAward()?.total).toBe(53);
+      expect(game.progress().totalXp).toBe(53);
+
+      game.start('waage', 'schwer', 4242);
+      expect(game.lastAward()).toBeNull();
+      expect(JSON.parse(localStorage.getItem('raetsel.progress.v1') ?? '{}').totalXp).toBe(53);
+    });
+
+    it('adds the daily bonus on the daily puzzle', () => {
+      game.start('waage', 'leicht', dailySeed(dayKey(), 'waage', 'leicht'));
+      solveCurrent();
+
+      expect(game.lastAward()?.dailyBonus).toBe(25);
+      expect(game.progress().bestStreak).toBe(1);
+    });
+  });
+
   describe('daily puzzles', () => {
     function solveCurrent(): void {
       const puzzle = game.puzzle();

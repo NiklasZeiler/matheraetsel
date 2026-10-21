@@ -16,6 +16,11 @@
     </p>
   }
 
+  <a class="league-card" routerLink="/fortschritt">
+    <span class="league-title">{{ leagueIcon() }} {{ leagueName() }}-Liga</span>
+    <span class="league-meta">{{ game.progress().totalXp }} XP · Liga &amp; Abzeichen ansehen</span>
+  </a>
+
   <section aria-labelledby="categories-heading">
     <h2 id="categories-heading">Rätselart wählen</h2>
     <ul class="categories">
